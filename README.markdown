@@ -16,7 +16,7 @@ Tyro lets you, the developer decide how to structure your application - after al
 Dependencies
 ------------
 
-Tyro has a few dependencies, but these could easily be ripped / swapped out and changed to whatever you want. Currently Tyro is built on top of jQuery and jQuery.HashChange (you know the guy that wrote jQuery BBQ).
+Tyro has a few dependencies, but these could easily be ripped / swapped out and changed to whatever you want. Currently Tyro is built on top of [jQuery](http://www.jquery.com) and [jQuery.HashChange](http://benalman.com/projects/jquery-hashchange-plugin/)  (you know the guy that wrote jQuery BBQ).
 
 Okay, Okay, so technically what does Tyro currently provide?
 ------------------------------------------------------------
