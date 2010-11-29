@@ -25,6 +25,19 @@ Okay, Okay, so technically what does Tyro currently provide?
 - Kicking off controllers
 - Setting the hash value
 
+Doesn't sound like much does it?
+--------------------------------
+
+As we said, it's tiny but that coupled with an example app (still todo) should show you how nice it is to use, to build a lovely, architected, MVC single page web application.
+
+What else do we suggest?
+------------------------
+
+It's completely up to you how you build your application but we have to recommend the following:
+
+- jQuery Templates (they are super awesome)
+- jQuery PubSub (useful to get your application talking to each without coupling)
+
 A very simple quick start guide
 -------------------------------
 
