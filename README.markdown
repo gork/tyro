@@ -28,7 +28,7 @@ Okay, Okay, so technically what does Tyro currently provide?
 Doesn't sound like much does it?
 --------------------------------
 
-As we said, it's tiny but that coupled with an example app (still todo) should show you how nice it is to use, to build a lovely, architected, MVC single page web application.
+As we said, it's tiny but that coupled with an example app (still todo) should show you how easy it is to build a lovely, architected, MVC single page web application.
 
 What else do we suggest?
 ------------------------
