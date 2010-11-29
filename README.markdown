@@ -4,15 +4,12 @@ Readme
 In a sentence
 -------------
 
-Another super-lightweight JavaScript MVC framework inspired by Backbone, CorMVC and Sammy.
+Tyro is another (super-lightweight) JavaScript (MVC) framework inspired by Backbone, CorMVC and Sammy.
 
 In slightly more detail
 -----------------------
 
-1. We hope this project aids in building single page web applications. 
-2. We don't want to prescribe too much.
-3. We do want to provide some essential tools to help you implement your own application.
-4. We hope to provide an example of how to use it.
+We hope this project aids in building single page web applications without prescribing too much; we want you, the developer, to lean on the tool, as opposed to rely on it. Technically speaking, you could use Tyro without any models and views and instead munge all the layers into what we call the controllers, but we don't advise this.
 
 A very simple quick start guide
 -------------------------------
