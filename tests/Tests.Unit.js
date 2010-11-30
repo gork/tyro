@@ -131,6 +131,21 @@ test("Triggering a route that does not exist should set the hash to the pageNotF
   equals(t.setHash.args[0], t.options.pageNotFoundUrl, "The first argument passed to setHash was the pageNotFoundUrl options property value.");
 });
 
+test("Triggering a route that exists should call the callback functions", function() {
+  var t = new Tyro();
+  var func1 = stubFn();
+  t.addRoute("/my/url", func1);
+  t._triggerRoute("/my/url");
+  ok(func1.called, "The callback function was called.");
+});
+
+test("Triggering a route with a particular :param should pass the value to the callback.", function() {
+  var t = new Tyro();
+  var func1 = stubFn();
+  t.addRoute("/admin/:uuid", func1);
+  t._triggerRoute("/admin/1");
+  equals(func1.args[0], "1", "The param was passed to the function.");  
+});
 
 
 
