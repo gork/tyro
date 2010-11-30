@@ -85,3 +85,33 @@ test("Adding two callbacks to the same route url should only create one route it
   equals(t.routes[url].callbacks.length, 2);
 });
 
+module("getHash()");
+
+test("Getting the hash, should get the hash value from the document location without the # character", function() {
+  var t = new Tyro();
+  document.location.hash = "woop";
+  equals("woop", t.getHash(), "The value returned should be woop.");
+});
+
+module("setHash()");
+
+test("Setting hash, should change the hash value in document.location", function() {
+  var t = new Tyro();
+  t.setHash("woop2");
+  equals(document.location.hash.substr(1), "woop2", "The document.location.hash value (without the #) is woop2.")
+});
+
+module("_routeToRegExp()");
+
+test("Converting a route to a regex, should return a correctly formed regex", function() {
+  var t = new Tyro();
+  equals(t._routeToRegExp("/woop/:uuid/twooop"), "/^/woop/([^/]+)/twooop/?$/", "The regex returned was correctly replaced.");
+});
+
+
+
+
+
+
+
+
