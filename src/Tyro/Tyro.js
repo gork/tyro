@@ -125,6 +125,12 @@
      * @param {Function} callback 
      */
     p.addRoute = function(route, callback) {
+      if(typeof route !== "string") {
+        throw new TypeError("Tyro: addRoute: route should be a string");
+      }
+      if(typeof callback !== "function") {
+        throw new TypeError("Tyro: addRoute: callback should be a function");
+      }
       if(!this.routes[route]) {
         this.routes[route] = {
           regex: this._routeToRegExp(route),
