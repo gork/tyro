@@ -184,5 +184,29 @@ test("Setting up the hash change handler should call $('obj').hashchange", funct
   equals($.fn.hashchange.callCount, 2, "The method should have been called twice.");
 });
 
+module("_initControllers()");
+
+test("Initiating the controllers should loop through each controller constructor and create a new instance.", function() {
+  var Controller1 = stubFn();
+  var Controller2 = stubFn();
+  var t = new Tyro();
+  t.controllers = [Controller1, Controller2];
+  t._initControllers();
+  ok(Controller1.called, "Constructor invoked");
+  notEqual(Controller1.thisValue, window, "The this value is not window - i.e. a new instance was created.");
+  ok(Controller2.called, "Constructor invoked");
+  notEqual(Controller2.thisValue, window, "The this value is not window - i.e. a new instance was created.");
+});
+
+module("run()");
+
+test("Running the application should call _initControllers and _setupHashChange", function() {
+  var t = new Tyro();
+  t._initControllers = stubFn();
+  t._setupHashChange = stubFn();
+  t.run();
+  ok(t._initControllers.called, "The _initControllers method was called.");
+  ok(t._setupHashChange.called, "The _setupHashChange method was called.");
+});
 
 
