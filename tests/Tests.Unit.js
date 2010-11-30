@@ -142,9 +142,14 @@ test("Triggering a route that exists should call the callback functions", functi
 test("Triggering a route with a particular :param should pass the value to the callback.", function() {
   var t = new Tyro();
   var func1 = stubFn();
+  var func2 = stubFn();
   t.addRoute("/admin/:uuid", func1);
+  t.addRoute("/admin/:uuid/something/:whatever", func2);
   t._triggerRoute("/admin/1");
+  t._triggerRoute("/admin/2345abc/something/fd54")
   equals(func1.args[0], "1", "The param was passed to the function.");  
+  equals(func2.args[0], "2345abc", "The param was passed to the function.");  
+  equals(func2.args[1], "fd54", "The param was passed to the function.");
 });
 
 
