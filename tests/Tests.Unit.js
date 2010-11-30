@@ -2,10 +2,13 @@ function stubFn(returnValue) {
   var fn = function () {
     fn.called = true;
     fn.args = arguments;
+    fn.thisValue = this;
+    fn.callCount++;
     return returnValue;
   };
 
   fn.called = false;
+  fn.callCount = 0;
 
   return fn;
 }
@@ -163,7 +166,23 @@ test("Handling the hash change should call _triggerRoute()", function() {
   equals(t._triggerRoute.args[0], "hello", "The getHash() value was passed to _triggerRoute as the firsrt argument.");
 });
 
+module("_setupHashChange()", {
+  setup: function() {
+    this.origHashChange = $.fn.hashchange;
+    $.fn.hashchange = stubFn();
+  },
+  teardown: function() {
+    $.fn.hashchange = this.origHashChange;
+  }
+});
 
+test("Setting up the hash change handler should call $('obj').hashchange", function() {
+  var t = new Tyro();
+  t._setupHashChange();  
+  ok($.fn.hashchange.called, "The hashchange was called.");
+  equals($.fn.hashchange.thisValue[0], window, "The 'this' value is a jQuery collection with the window object inside the first item.");
+  equals($.fn.hashchange.callCount, 2, "The method should have been called twice.");
+});
 
 
 
