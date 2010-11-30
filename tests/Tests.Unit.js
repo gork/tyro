@@ -152,7 +152,16 @@ test("Triggering a route with a particular :param should pass the value to the c
   equals(func2.args[1], "fd54", "The param was passed to the function.");
 });
 
+module("_handleHashChange()");
 
+test("Handling the hash change should call _triggerRoute()", function() {
+  var t = new Tyro();
+  t.getHash = stubFn("hello");
+  t._triggerRoute = stubFn();
+  t._handleHashChange();
+  ok(t.getHash.called, "getHash() was called.");
+  equals(t._triggerRoute.args[0], "hello", "The getHash() value was passed to _triggerRoute as the firsrt argument.");
+});
 
 
 
