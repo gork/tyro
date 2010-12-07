@@ -1,5 +1,3 @@
-(function(Global, $) {
-  
   /**
    * Creates a new SuperApp instance.
    * <br/><br/> The SuperApp constructor is very simple, it exposes 3 main methods for use:
@@ -11,7 +9,7 @@
    * @class
    * @name SuperApp
    */
-  function Tryo(options) {
+  function Tyro(options) {
     this.controllers = [], this.routes = {};
     this.options = $.extend({
       pageNotFoundUrl: "/admin/page_not_found"
@@ -173,8 +171,4 @@
       return new RegExp("^" + route + "\/?$");
     }
     
-  })(Tryo.prototype);
-  
-  Global.Tyro = Tryo;
-  
-})(this, jQuery);
+  })(Tyro.prototype);
