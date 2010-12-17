@@ -1,18 +1,22 @@
   /**
-   * Creates a new SuperApp instance.
-   * <br/><br/> The SuperApp constructor is very simple, it exposes 3 main methods for use:
+   * Creates a new Tyro instance.
+   * <br/><br/> The Tyro constructor is very simple, it exposes 3 main methods for use:
    * <br/><br/> - addController() which adds you controller constructor function references to the app
    * <br/><br/> - run() which effectively starts the app by listening for hash changes and creating new
    * instances of the controllers.
    * <br/><br/> - setHash() which is a helper function to set the hash part of the url
    * @constructor 
    * @class
-   * @name SuperApp
+   * @name Tyro
+   * @param {Object} options The options for the instance
+   * @param {String} pageNotFoundUrl The url that the hash will be set to if a route cannot be matched. Null will mean the hash is unaffected.
+   * @param {Function} routeMatched A function to be called when a route is matched.
    */
   function Tyro(options) {
     this.controllers = [], this.routes = {};
     this.options = $.extend({
-      pageNotFoundUrl: "/admin/page_not_found"
+      pageNotFoundUrl: "/page_not_found",
+      routeMatched: null
     }, options || {});
   }
   
@@ -20,8 +24,8 @@
     /**
      * Add a controller to the app
      * @param {Function} fn The reference to the controller constructor function
-     * @exports p as SuperApp.prototype
-     * @memberOf SuperApp#
+     * @exports p as Tyro.prototype
+     * @memberOf Tyro#
      */
     p.addController = function(fn) {
       this.controllers.push(fn);
@@ -30,8 +34,8 @@
     /**
      * Run the application
      * <br/><br/> Behind the scenes this initialises the controllers and sets up a hash change listener
-     * @exports p as SuperApp.prototype
-     * @memberOf SuperApp#
+     * @exports p as Tyro.prototype
+     * @memberOf Tyro#
      */
     p.run = function() {
       this._initControllers();
@@ -40,8 +44,8 @@
     
     /**
      * Create instances of each controller that has been added to the application
-     * @exports p as SuperApp.prototype
-     * @memberOf SuperApp#
+     * @exports p as Tyro.prototype
+     * @memberOf Tyro#
      * @private
      */
     p._initControllers = function() {
@@ -53,8 +57,8 @@
     /**
      * Sets up a hash change listener to handle url changes in the hash portion of the url.
      * It also triggers a change so that the initial view can be setup from current hash.
-     * @exports p as SuperApp.prototype
-     * @memberOf SuperApp#
+     * @exports p as Tyro.prototype
+     * @memberOf Tyro#
      */
     p._setupHashChange = function() {
       var win = $(window);
@@ -64,8 +68,8 @@
     
     /**
      * Handles the hash change event
-     * @exports p as SuperApp.prototype
-     * @memberOf SuperApp#
+     * @exports p as Tyro.prototype
+     * @memberOf Tyro#
      */
     p._handleHashChange = function() {
       this._triggerRoute(this.getHash());
@@ -73,8 +77,8 @@
     
     /**
      * Sets the hash portion of the Url programmatically
-     * @exports p as SuperApp.prototype
-     * @memberOf SuperApp#
+     * @exports p as Tyro.prototype
+     * @memberOf Tyro#
      * @param {String} hash The new hash i.e. /admin/campaigns
      */
     p.setHash = function(hash) {
@@ -83,8 +87,8 @@
     
     /**
      * Get the hash portion of the Url
-     * @exports p as SuperApp.prototype
-     * @memberOf SuperApp#
+     * @exports p as Tyro.prototype
+     * @memberOf Tyro#
      * @returns {String} The hash portion of the url (without the hash)
      */
     p.getHash = function() {
@@ -93,15 +97,19 @@
     
     /**
      * Trigger the callbacks stored against a particular route
-     * @exports p as SuperApp.prototype
-     * @memberOf SuperApp#
+     * @exports p as Tyro.prototype
+     * @memberOf Tyro#
      * @param {String} url The url i.e. "/admin/campaigns"
      */
     p._triggerRoute = function(url) {
       var matches = null;
       var urlFound = false;
-      $.each(this.routes, function(i, route) {
-        if(matches = url.match(route.regex)) {
+      $.each(this.routes, $.proxy(function(i, route) {
+        matches = url.match(route.regex);
+        if(matches) {
+          if(this.options.routeMatched) {
+            this.options.routeMatched(url);
+          }
           matches = matches.splice(1);
           $.each(route.callbacks, function(i, callback) {
             callback.apply(null, matches);
@@ -109,8 +117,8 @@
           urlFound = true;  
           return false;
         }
-      });
-      if(!urlFound) {
+      }, this));
+      if(!urlFound && this.options.pageNotFoundUrl) {
         this.setHash(this.options.pageNotFoundUrl);
       }
     }
@@ -162,10 +170,10 @@
       route = route.replace(/\/$/, "");
     
       // replace * with anything but a forward slash zero or more times
-      route = route.replace("*", "[^\/]*");
+      route = route.replace(/(^\*)|\/\*/, "[^\/]*");
     
       // replace : and any character but a slash with a matcher that matches any character but a slash one or more times
-      route = route.replace(/:[^\/]*/g, "([^\/]+)");
+      route = route.replace(/([^\?]):[^\/]*/g, "$1([^\/]+)");
     
       //return regex
       return new RegExp("^" + route + "\/?$");
