@@ -41,4 +41,13 @@ It's completely up to you how you build your application but we have to recommen
 A very simple quick start guide
 -------------------------------
 
-TODO
+    new Tyro({
+        pageNotFoundUrl: "/404",
+        routeMatched: function(url) {
+            // do something if you want
+            
+            // in our example we are publishing an event that the url was changed, so that lots of
+            // different views can update themselves based on the current matched url. Useful for
+            // highlighting the current menu item.
+        }
+    })
