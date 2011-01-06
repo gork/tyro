@@ -146,6 +146,40 @@ function Tyro(options) {
     route = this.routes[route];
     route.callbacks.push(callback);
   }
+  
+  Tyro.prototype.getParamsFromRoute = function(route, url) {
+    var params = {};
+    var paramsMatcher = /:([\w\d]+)/g;
+    paramsMatcher.lastIndex = 0; // ie bug - check out sammy
+    var pathReplacer = "([^\/]+)";
+    var queryStringMatcher = /\?([^#]*)$/;
+
+    var param_names = [], path_match, path = route, path_params;
+    while ((path_match = paramsMatcher.exec(route)) !== null) {
+      param_names.push(path_match[1]);
+    }
+    // replace with the path replacement
+    path = new RegExp("^" + path.replace(paramsMatcher, pathReplacer) + "$");
+
+    if ((path_params = path.exec(url)) !== null) {
+
+      // dont want the first bit
+      path_params.shift();
+      // for each of the matches
+      $.each(path_params, function(i, param) {
+        // if theres a matching param name
+        if (param_names[i]) {
+          // set the name to the match
+          params[param_names[i]] = param;
+        } else {
+          // get splat code from sammy if/as you need it
+        }
+      });   
+
+    }
+
+    return params;
+  }
     
   /**
    * This will take a route
