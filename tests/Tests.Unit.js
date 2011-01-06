@@ -164,15 +164,6 @@ test("Triggering a route with a particular :param should pass the value to the c
   equals(func2.args[1], "fd54", "The param was passed to the function.");
 });
 
-test("Triggering a route with a particular set of params :param1, :param2 should provide an object with values keyed by param1 and param2", function() {
-  var t = new Tyro();
-  var func1 = stubFn();
-  t.addRoute("/setup/:param1/whatever/:param2/etc", func1);
-  t._triggerRoute("/setup/123/whatever/456/etc");
-  equals(func1.args[0].param1, "123");
-  equals(func1.args[0].param2, "456");
-})
-
 module("_handleHashChange()");
 
 test("Handling the hash change should call _triggerRoute()", function() {
