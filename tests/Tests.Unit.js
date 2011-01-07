@@ -218,4 +218,14 @@ test("Running the application should call _initControllers and _setupHashChange"
   ok(t._setupHashChange.called, "The _setupHashChange method was called.");
 });
 
+module("addFilter()");
 
+test("Adding a filter adds the callbacks to the filters object", function() {
+  var t = new Tyro();
+  var func = stubFn();
+  var func2 = stubFn();
+  //t.addFilter("^/setup/([^\/]*)\/?([^\/]*)\/?$", func);
+  t.addFilter("/setup/*", func);
+  t.addRoute("/setup/:uuid", func2);
+  t._triggerRoute("/setup/123/");
+});

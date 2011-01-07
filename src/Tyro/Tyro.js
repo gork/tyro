@@ -13,7 +13,7 @@
  * @param {Function} routeMatched A function to be called when a route is matched.
  */
 function Tyro(options) {
-  this.controllers = [], this.routes = {};
+  this.controllers = [], this.routes = {}, this.filters = {};
   this.options = $.extend({
     pageNotFoundUrl: "/page_not_found",
     routeMatched: null
@@ -107,7 +107,7 @@ Tyro.prototype._triggerRoute = function(url) {
   $.each(this.routes, $.proxy(function(i, route) {
     matches = url.match(route.regex);
     // if the route was matched
-    if(matches) {
+    if(matches) {      
       this.handleRouteFound(url, route, matches);
       urlFound = true;
     }
@@ -118,11 +118,20 @@ Tyro.prototype._triggerRoute = function(url) {
 }
 
 Tyro.prototype.handleRouteFound = function(url, route, matches) {
+  
+  var filterMatches = null;
+  $.each(this.filters, function(i, filter) {
+    filterMatches = url.match(filter.path);
+    console.log(url);
+    console.log(filter.path);
+    console.log(filterMatches);
+  });
+  
   // tell the routeMatched callback if present about the route
   if(this.options.routeMatched) {
     this.options.routeMatched(url);
   }
-  matches = matches.splice(1);     
+  matches = matches.splice(1);
   
   // check the before filters before running the route callbacks
   if(route.beforeFilters) {
@@ -248,9 +257,16 @@ Tyro.prototype.getParamsFromRoute = function(route, url) {
       } else {
         // get splat code from sammy if/as you need it
       }
-    });   
-
+    });
   }
 
   return params;
+}
+
+Tyro.prototype.addFilter = function(path, callback) {
+  if(!this.filters[path]) {
+    this.filters[path] = { path: this._routeToRegExp(path), callbacks: [] };
+  }
+  var filter = this.filters[path];
+  filter.callbacks.push(callback);
 }
