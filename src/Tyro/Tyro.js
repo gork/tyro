@@ -118,15 +118,6 @@ Tyro.prototype._triggerRoute = function(url) {
 }
 
 Tyro.prototype.handleRouteFound = function(url, route, matches) {
-  
-  var filterMatches = null;
-  $.each(this.filters, function(i, filter) {
-    filterMatches = url.match(filter.path);
-    console.log(url);
-    console.log(filter.path);
-    console.log(filterMatches);
-  });
-  
   // tell the routeMatched callback if present about the route
   if(this.options.routeMatched) {
     this.options.routeMatched(url);
@@ -148,7 +139,19 @@ Tyro.prototype.handleRouteFound = function(url, route, matches) {
   // we now want to loop through generic filters that match the matched route
   // to see if we need to do anything before running the route callback
   // useful for setting up generic stuff
-  // THIS IS STILL TO DO
+  var filterMatches = null;
+  $.each(this.filters, $.proxy(function(i, filter) {
+    filterMatches = url.match(filter.regex);
+    //console.log(url);
+    //console.log(filter.regex);
+    //console.log(filterMatches);
+    
+    if(filterMatches) {
+      console.log(filterMatches, filter.regex);
+      this.handleFilterFound(url, filter, filterMatches);
+    }
+    
+  }, this));
   
   // run each callback against the route
   $.each(route.callbacks, function(i, callback) {
@@ -165,6 +168,12 @@ Tyro.prototype.handleRouteFound = function(url, route, matches) {
   this.previousUrl = url;
   urlFound = true;  
   return false;
+}
+
+Tyro.prototype.handleFilterFound = function(url, filter, matches) {
+  $.each(filter.callbacks, $.proxy(function(i, fn){
+    fn.apply(this, matches);
+  }, this));
 }
 
 /**
@@ -217,11 +226,14 @@ Tyro.prototype.addRoute = function(route, callback, options) {
  *
  */
 Tyro.prototype._routeToRegExp = function(route) {
+  
+  if(typeof route !== "string") return route;
+  
   // replace last / with empty string i.e. remove final slash if present
   route = route.replace(/\/$/, "");
 
   // replace * with anything but a forward slash zero or more times
-  route = route.replace(/(^\*)|\/\*/, "[^\/]*");
+  route = route.replace('*', ".*");
 
   // replace : and any character but a slash with a matcher that matches any character but a slash one or more times
   route = route.replace(/([^\?]):[^\/]*/g, "$1([^\/]+)");
@@ -263,10 +275,27 @@ Tyro.prototype.getParamsFromRoute = function(route, url) {
   return params;
 }
 
-Tyro.prototype.addFilter = function(path, callback) {
-  if(!this.filters[path]) {
-    this.filters[path] = { path: this._routeToRegExp(path), callbacks: [] };
+/**
+ * Add a filter for a particular route. This is a powerful method, because
+ * when a route is matched, all the filters will be checked to see if any filters
+ * also match the url. If they do, their callbacks will be called before the route
+ * callback.
+ * @param {String/RegExp} route The route for the filter to work on
+ * @param {Function} callback The function to run when the filter route is matched
+ * @memberOf Tyro
+ * @public
+ * @function
+ * @example
+ * var t = new Tyro();
+ * t.addFilter("/some/place/*", function() {});
+ * // so when the following route is matched, the filter callbacks will run first
+ * t.addRoute("/some/place/123/456");
+ * 
+ */
+Tyro.prototype.addFilter = function(route, callback) {
+  if(!this.filters[route]) {
+    this.filters[route] = { regex: this._routeToRegExp(route), callbacks: [] };
   }
-  var filter = this.filters[path];
+  var filter = this.filters[route];
   filter.callbacks.push(callback);
 }

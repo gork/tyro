@@ -224,8 +224,35 @@ test("Adding a filter adds the callbacks to the filters object", function() {
   var t = new Tyro();
   var func = stubFn();
   var func2 = stubFn();
+  
   //t.addFilter("^/setup/([^\/]*)\/?([^\/]*)\/?$", func);
+  
   t.addFilter("/setup/*", func);
   t.addRoute("/setup/:uuid", func2);
   t._triggerRoute("/setup/123/");
+  
+  ok(t.filters["/setup/*"], "The filter has been added to the filters collection.");
+  ok(func.called, "The filter callback was called.");
+});
+
+test("2 Adding a filter adds the callbacks to the filters object", function() {
+  var t = new Tyro();
+  var func = stubFn();
+  var func2 = stubFn();
+  t.addFilter("/woop/*", func2)
+  t.addRoute("/woop/wop/etc/so/on", func);
+  t._triggerRoute("/woop/wop/etc/so/on");
+  ok(t.filters["/woop/*"], "The filter has been added to the filters collection.");
+  ok(func2.called, "The function was called for the second filter");
+});
+
+test("3 Adding a filter adds the callbacks to the filters object", function() {
+  var t = new Tyro();
+  var func = stubFn();
+  var func2 = stubFn();
+  t.addFilter("/nat/*", func2)
+  t.addRoute("/nat/na/na/nah/:uuid", func);
+  t._triggerRoute("/nat/na/na/nah/123d");
+  ok(t.filters["/nat/*"], "The filter has been added to the filters collection.");
+  ok(func2.called, "The function was called for the second filter");  
 });
