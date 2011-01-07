@@ -147,7 +147,6 @@ Tyro.prototype.handleRouteFound = function(url, route, matches) {
     //console.log(filterMatches);
     
     if(filterMatches) {
-      console.log(filterMatches, filter.regex);
       this.handleFilterFound(url, filter, filterMatches);
     }
     
