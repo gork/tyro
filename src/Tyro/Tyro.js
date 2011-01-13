@@ -24,7 +24,6 @@ function Tyro(options) {
   /**
  * Add a controller to the app
  * @param {Function} fn The reference to the controller constructor function
- * @exports p as Tyro.prototype
  * @memberOf Tyro#
  */
 Tyro.prototype.addController = function(fn) {
@@ -34,7 +33,6 @@ Tyro.prototype.addController = function(fn) {
 /**
  * Run the application
  * <br/><br/> Behind the scenes this initialises the controllers and sets up a hash change listener
- * @exports p as Tyro.prototype
  * @memberOf Tyro#
  */
 Tyro.prototype.run = function() {
@@ -44,7 +42,6 @@ Tyro.prototype.run = function() {
 
 /**
  * Create instances of each controller that has been added to the application
- * @exports p as Tyro.prototype
  * @memberOf Tyro#
  * @private
  */
@@ -57,7 +54,6 @@ Tyro.prototype.initControllers = function() {
 /**
  * Sets up a hash change listener to handle url changes in the hash portion of the url.
  * It also triggers a change so that the initial view can be setup from current hash.
- * @exports p as Tyro.prototype
  * @memberOf Tyro#
  */
 Tyro.prototype.setupHashChange = function() {
@@ -68,7 +64,6 @@ Tyro.prototype.setupHashChange = function() {
 
 /**
  * Handles the hash change event
- * @exports p as Tyro.prototype
  * @memberOf Tyro#
  */
 Tyro.prototype.handleHashChange = function() {
@@ -77,7 +72,6 @@ Tyro.prototype.handleHashChange = function() {
 
 /**
  * Sets the hash portion of the Url programmatically
- * @exports p as Tyro.prototype
  * @memberOf Tyro#
  * @param {String} hash The new hash i.e. /admin/campaigns
  */
@@ -87,7 +81,6 @@ Tyro.prototype.setHash = function(hash) {
 
 /**
  * Get the hash portion of the Url
- * @exports p as Tyro.prototype
  * @memberOf Tyro#
  * @returns {String} The hash portion of the url (without the hash)
  */
@@ -97,26 +90,42 @@ Tyro.prototype.getHash = function() {
 
 /**
  * Trigger the callbacks stored against a particular route
- * @exports p as Tyro.prototype
  * @memberOf Tyro#
  * @param {String} url The url i.e. "/admin/campaigns"
  */
 Tyro.prototype.triggerRoute = function(url) {
-  var matches = null;
-  var urlFound = false;
+  var matches = null, urlFound = false;
+  
+  // loop through all the routes
   $.each(this.routes, $.proxy(function(i, route) {
     matches = url.match(route.regex);
     // if the route was matched
-    if(matches) {      
-      this.handleRouteFound(url, route, matches);
-      urlFound = true;
+    if(matches) {   
+      urlFound = true;   
+      return this.handleRouteFound(url, route, matches);
     }
   }, this));
+  
+  // if the url has not been found (matched to a route)
   if(!urlFound && this.options.pageNotFoundUrl) {
+    // go to the page not found url
     this.setHash(this.options.pageNotFoundUrl);
   }
+  
 }
 
+/**
+ * When a route has been found it is handled in this function which is responsible
+ * for the following:
+ * <br/> Running the "route matched" generic callback
+ * <br/> Running the before filters
+ * <br/> Running the route callbacks themselves (the primary task)
+ * <br/> Running the after filters
+ * @param {String} url The url that matched the route i.e. /my/url/123/abc
+ * @param {Object} route The object containing route information including regex, path, beforeFilters and afterFilters
+ * @param {Array} matches The parameters that were in the path (i.e. /my/url/:uuid1/:uuid2) The values for :uuid1 and :uuid2 will be in the array
+ * @return {Boolean}
+ */
 Tyro.prototype.handleRouteFound = function(url, route, matches) {
   // tell the routeMatched callback if present about the route
   if(this.options.routeMatched) {
@@ -142,10 +151,6 @@ Tyro.prototype.handleRouteFound = function(url, route, matches) {
   var filterMatches = null;
   $.each(this.filters, $.proxy(function(i, filter) {
     filterMatches = url.match(filter.regex);
-    //console.log(url);
-    //console.log(filter.regex);
-    //console.log(filterMatches);
-    
     if(filterMatches) {
       this.handleFilterFound(url, filter, filterMatches);
     }
@@ -165,7 +170,6 @@ Tyro.prototype.handleRouteFound = function(url, route, matches) {
   }
   
   this.previousUrl = url;
-  urlFound = true;  
   return false;
 }
 
