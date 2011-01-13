@@ -38,8 +38,8 @@ Tyro.prototype.addController = function(fn) {
  * @memberOf Tyro#
  */
 Tyro.prototype.run = function() {
-  this._initControllers();
-  this._setupHashChange();
+  this.initControllers();
+  this.setupHashChange();
 }
 
 /**
@@ -48,7 +48,7 @@ Tyro.prototype.run = function() {
  * @memberOf Tyro#
  * @private
  */
-Tyro.prototype._initControllers = function() {
+Tyro.prototype.initControllers = function() {
   $.each(this.controllers, function(i, controller) {
     if(controller) new controller();
   });
@@ -60,9 +60,9 @@ Tyro.prototype._initControllers = function() {
  * @exports p as Tyro.prototype
  * @memberOf Tyro#
  */
-Tyro.prototype._setupHashChange = function() {
+Tyro.prototype.setupHashChange = function() {
   var win = $(window);
-  win.hashchange($.proxy(this._handleHashChange, this));
+  win.hashchange($.proxy(this.handleHashChange, this));
   win.hashchange();
 }
 
@@ -71,8 +71,8 @@ Tyro.prototype._setupHashChange = function() {
  * @exports p as Tyro.prototype
  * @memberOf Tyro#
  */
-Tyro.prototype._handleHashChange = function() {
-  this._triggerRoute(this.getHash());
+Tyro.prototype.handleHashChange = function() {
+  this.triggerRoute(this.getHash());
 }
 
 /**
@@ -101,7 +101,7 @@ Tyro.prototype.getHash = function() {
  * @memberOf Tyro#
  * @param {String} url The url i.e. "/admin/campaigns"
  */
-Tyro.prototype._triggerRoute = function(url) {
+Tyro.prototype.triggerRoute = function(url) {
   var matches = null;
   var urlFound = false;
   $.each(this.routes, $.proxy(function(i, route) {
@@ -196,7 +196,7 @@ Tyro.prototype.addRoute = function(route, callback, options) {
   }
   if(!this.routes[route]) {
     this.routes[route] = {
-      regex: this._routeToRegExp(route),
+      regex: this.routeToRegExp(route),
       callbacks: [],
       beforeFilters: options.beforeFilters,
       afterFilters: options.afterFilters
@@ -224,7 +224,7 @@ Tyro.prototype.addRoute = function(route, callback, options) {
  * then when the url is /admin/campaigns/add the /admin/campaigns/:uuid route will be incorrectly fired
  *
  */
-Tyro.prototype._routeToRegExp = function(route) {
+Tyro.prototype.routeToRegExp = function(route) {
   
   if(typeof route !== "string") return route;
   
@@ -293,7 +293,7 @@ Tyro.prototype.getParamsFromRoute = function(route, url) {
  */
 Tyro.prototype.addFilter = function(route, callback) {
   if(!this.filters[route]) {
-    this.filters[route] = { regex: this._routeToRegExp(route), callbacks: [] };
+    this.filters[route] = { regex: this.routeToRegExp(route), callbacks: [] };
   }
   var filter = this.filters[route];
   filter.callbacks.push(callback);

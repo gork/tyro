@@ -120,8 +120,8 @@ module("_routeToRegExp()");
 
 test("Converting a route to a regex, should return a correctly formed regex", function() {
   var t = new Tyro();
-  var reg = t._routeToRegExp("/woop/:uuid/twooop").toString()
-  //equals(t._routeToRegExp("/woop/:uuid/twooop").toString(), "/^/woop/([^/]+)/twooop/?$/", "The regex returned was correctly replaced.");
+  var reg = t.routeToRegExp("/woop/:uuid/twooop").toString()
+  //equals(t.routeToRegExp("/woop/:uuid/twooop").toString(), "/^/woop/([^/]+)/twooop/?$/", "The regex returned was correctly replaced.");
 });
 
 module("getParamsFromRoute()")
@@ -138,7 +138,7 @@ module("_triggerRoute()");
 test("Triggering a route that does not exist should set the hash to the pageNotFoundUrl (defined in the options property)", function() {
   var t = new Tyro();
   t.setHash = stubFn(); 
-  t._triggerRoute();
+  t.triggerRoute();
   ok(t.setHash.called, "The setHash function was called.");
   equals(t.setHash.args[0], t.options.pageNotFoundUrl, "The first argument passed to setHash was the pageNotFoundUrl options property value.");
 });
@@ -147,7 +147,7 @@ test("Triggering a route that exists should call the callback functions", functi
   var t = new Tyro();
   var func1 = stubFn();
   t.addRoute("/my/url", func1);
-  t._triggerRoute("/my/url");
+  t.triggerRoute("/my/url");
   ok(func1.called, "The callback function was called.");
 });
 
@@ -157,8 +157,8 @@ test("Triggering a route with a particular :param should pass the value to the c
   var func2 = stubFn();
   t.addRoute("/admin/:uuid", func1);
   t.addRoute("/admin/:uuid/something/:whatever", func2);
-  t._triggerRoute("/admin/1");
-  t._triggerRoute("/admin/2345abc/something/fd54")
+  t.triggerRoute("/admin/1");
+  t.triggerRoute("/admin/2345abc/something/fd54")
   equals(func1.args[0], "1", "The param was passed to the function.");  
   equals(func2.args[0], "2345abc", "The param was passed to the function.");  
   equals(func2.args[1], "fd54", "The param was passed to the function.");
@@ -169,10 +169,10 @@ module("_handleHashChange()");
 test("Handling the hash change should call _triggerRoute()", function() {
   var t = new Tyro();
   t.getHash = stubFn("hello");
-  t._triggerRoute = stubFn();
-  t._handleHashChange();
+  t.triggerRoute = stubFn();
+  t.handleHashChange();
   ok(t.getHash.called, "getHash() was called.");
-  equals(t._triggerRoute.args[0], "hello", "The getHash() value was passed to _triggerRoute as the firsrt argument.");
+  equals(t.triggerRoute.args[0], "hello", "The getHash() value was passed to _triggerRoute as the firsrt argument.");
 });
 
 module("_setupHashChange()", {
@@ -187,7 +187,7 @@ module("_setupHashChange()", {
 
 test("Setting up the hash change handler should call $('obj').hashchange", function() {
   var t = new Tyro();
-  t._setupHashChange();  
+  t.setupHashChange();  
   ok($.fn.hashchange.called, "The hashchange was called.");
   equals($.fn.hashchange.thisValue[0], window, "The 'this' value is a jQuery collection with the window object inside the first item.");
   equals($.fn.hashchange.callCount, 2, "The method should have been called twice.");
@@ -200,7 +200,7 @@ test("Initiating the controllers should loop through each controller constructor
   var Controller2 = stubFn();
   var t = new Tyro();
   t.controllers = [Controller1, Controller2];
-  t._initControllers();
+  t.initControllers();
   ok(Controller1.called, "Constructor invoked");
   notEqual(Controller1.thisValue, window, "The this value is not window - i.e. a new instance was created.");
   ok(Controller2.called, "Constructor invoked");
@@ -211,11 +211,11 @@ module("run()");
 
 test("Running the application should call _initControllers and _setupHashChange", function() {
   var t = new Tyro();
-  t._initControllers = stubFn();
-  t._setupHashChange = stubFn();
+  t.initControllers = stubFn();
+  t.setupHashChange = stubFn();
   t.run();
-  ok(t._initControllers.called, "The _initControllers method was called.");
-  ok(t._setupHashChange.called, "The _setupHashChange method was called.");
+  ok(t.initControllers.called, "The _initControllers method was called.");
+  ok(t.setupHashChange.called, "The _setupHashChange method was called.");
 });
 
 module("addFilter()");
@@ -229,7 +229,7 @@ test("Adding a filter adds the callbacks to the filters object", function() {
   
   t.addFilter("/setup/*", func);
   t.addRoute("/setup/:uuid", func2);
-  t._triggerRoute("/setup/123/");
+  t.triggerRoute("/setup/123/");
   
   ok(t.filters["/setup/*"], "The filter has been added to the filters collection.");
   ok(func.called, "The filter callback was called.");
@@ -241,7 +241,7 @@ test("2 Adding a filter adds the callbacks to the filters object", function() {
   var func2 = stubFn();
   t.addFilter("/woop/*", func2)
   t.addRoute("/woop/wop/etc/so/on", func);
-  t._triggerRoute("/woop/wop/etc/so/on");
+  t.triggerRoute("/woop/wop/etc/so/on");
   ok(t.filters["/woop/*"], "The filter has been added to the filters collection.");
   ok(func2.called, "The function was called for the second filter");
 });
@@ -252,7 +252,7 @@ test("3 Adding a filter adds the callbacks to the filters object", function() {
   var func2 = stubFn();
   t.addFilter("/nat/*", func2)
   t.addRoute("/nat/na/na/nah/:uuid", func);
-  t._triggerRoute("/nat/na/na/nah/123d");
+  t.triggerRoute("/nat/na/na/nah/123d");
   ok(t.filters["/nat/*"], "The filter has been added to the filters collection.");
   ok(func2.called, "The function was called for the second filter");  
 });
