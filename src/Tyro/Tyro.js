@@ -245,6 +245,14 @@ Tyro.prototype.routeToRegExp = function(route) {
   return new RegExp("^" + route + "\/?$");
 }
 
+/**
+ * Get the params from the route and url. If the route is
+ * /path/:uuid and the url is /path/123 then the params object
+ * will be  { uuid: "123"}
+ * @param {String} route The route i.e. /my/path/:uuid
+ * @param {String} url The url i.e. /my/path/123
+ * @returns {Object} The object keyed by route param names
+ */
 Tyro.prototype.getParamsFromRoute = function(route, url) {
   var params = {};
   var paramsMatcher = /:([\w\d]+)/g;
