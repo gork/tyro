@@ -127,12 +127,15 @@ Tyro.prototype.triggerRoute = function(url) {
  * @return {Boolean}
  */
 Tyro.prototype.handleRouteFound = function(url, route, matches) {
+  
+  
   // tell the routeMatched callback if present about the route
   if(this.options.routeMatched) {
     this.options.routeMatched(url);
   }
+  console.log(matches);
   matches = matches.splice(1);
-  
+  console.log(matches);
   // check the before filters before running the route callbacks
   if(route.beforeFilters) {
     var beforeFiltersSuccess = true;
