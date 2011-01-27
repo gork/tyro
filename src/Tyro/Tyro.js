@@ -133,9 +133,13 @@ Tyro.prototype.handleRouteFound = function(url, route, matches) {
   if(this.options.routeMatched) {
     this.options.routeMatched(url);
   }
-  console.log(matches);
+  //console.log(matches);
   matches = matches.splice(1);
-  console.log(matches);
+  //if(matches[matches.length - 1]) {
+  //  console.log("oh yeahhh")
+  //  console.log($.unDelimit(matches[matches.length-1]))    
+  //}
+  //console.log(matches);
   // check the before filters before running the route callbacks
   if(route.beforeFilters) {
     var beforeFiltersSuccess = true;
@@ -245,7 +249,7 @@ Tyro.prototype.routeToRegExp = function(route) {
   route = route.replace(/([^\?]):[^\/]*/g, "$1([^\/]+)");
 
   //return regex
-  return new RegExp("^" + route + "\/?$");
+  return new RegExp("^" + route + "\/?(?:\\?(.*))?$");
 }
 
 /**
@@ -261,7 +265,20 @@ Tyro.prototype.getParamsFromRoute = function(route, url) {
   var paramsMatcher = /:([\w\d]+)/g;
   paramsMatcher.lastIndex = 0; // ie bug - check out sammy
   var pathReplacer = "([^\/]+)";
-  var queryStringMatcher = /\?([^#]*)$/;
+  var queryStringMatcher = /\/?\?([^#]*)$/;
+  
+  // strip querystring but store key valued object ready to merge later
+  // after we have converted the regular url params in an object
+  var qs = url.match(queryStringMatcher);
+  if(qs) {
+    qs = qs[1];
+    qs = $.unDelimit(qs);
+  }
+  else {
+    qs = {};
+  }
+  
+  url = url.replace(queryStringMatcher, '');
 
   var param_names = [], path_match, path = route, path_params;
   while ((path_match = paramsMatcher.exec(route)) !== null) {
@@ -271,7 +288,6 @@ Tyro.prototype.getParamsFromRoute = function(route, url) {
   path = new RegExp("^" + path.replace(paramsMatcher, pathReplacer) + "$");
 
   if ((path_params = path.exec(url)) !== null) {
-
     // dont want the first bit
     path_params.shift();
     // for each of the matches
@@ -285,7 +301,8 @@ Tyro.prototype.getParamsFromRoute = function(route, url) {
       }
     });
   }
-
+  
+  params = $.extend(params, qs);
   return params;
 }
 

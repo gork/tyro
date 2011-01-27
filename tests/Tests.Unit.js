@@ -133,6 +133,17 @@ test("Get params from route returns object with param names as keys", function()
   equals(obj.whatever, "56d");
 })
 
+test("Get params from route includes querystring", function() {
+  var func = stubFn();
+  var t = new Tyro();
+  var obj = t.getParamsFromRoute("/setup/:uuid/:whatever", "/setup/123/56d/?a=1&b=2");
+  equals(obj.uuid, "123");
+  equals(obj.whatever, "56d");
+  console.log(obj)
+  
+})
+
+
 module("_triggerRoute()");
 
 test("Triggering a route that does not exist should set the hash to the pageNotFoundUrl (defined in the options property)", function() {
@@ -256,3 +267,6 @@ test("3 Adding a filter adds the callbacks to the filters object", function() {
   ok(t.filters["/nat/*"], "The filter has been added to the filters collection.");
   ok(func2.called, "The function was called for the second filter");  
 });
+
+
+
