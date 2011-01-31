@@ -99,8 +99,7 @@ Tyro.prototype.triggerRoute = function(url) {
   // loop through all the routes
   $.each(this.routes, $.proxy(function(i, route) {
     matches = url.match(route.regex);
-    // if the route was matched
-        
+    // if the route was matched        
     if(matches) {   
       urlFound = true;   
       return this.handleRouteFound(url, route, matches);
