@@ -100,6 +100,7 @@ Tyro.prototype.triggerRoute = function(url) {
   $.each(this.routes, $.proxy(function(i, route) {
     matches = url.match(route.regex);
     // if the route was matched
+        
     if(matches) {   
       urlFound = true;   
       return this.handleRouteFound(url, route, matches);
@@ -127,7 +128,6 @@ Tyro.prototype.triggerRoute = function(url) {
  * @return {Boolean}
  */
 Tyro.prototype.handleRouteFound = function(url, route, matches) {
-  
   
   // tell the routeMatched callback if present about the route
   if(this.options.routeMatched) {
@@ -164,15 +164,17 @@ Tyro.prototype.handleRouteFound = function(url, route, matches) {
     
   }, this));
   
+  var params = this.getParamsFromRoute(route.route, url);
+  
   // run each callback against the route
-  $.each(route.callbacks, function(i, callback) {
-    callback.apply(null, matches);
+  $.each(route.callbacks, function(i, fn) {    
+    fn.call(null, params);
   });
   
   // check the after filters after running the route callbacks
   if(route.afterFilters) {
-    $.each(route.afterFilters, function(i, func) {
-      func.apply(null, matches);
+    $.each(route.afterFilters, function(i, fn) {
+      fn.call(null, params);
     });
   }
   
@@ -210,7 +212,8 @@ Tyro.prototype.addRoute = function(route, callback, options) {
       regex: this.routeToRegExp(route),
       callbacks: [],
       beforeFilters: options.beforeFilters,
-      afterFilters: options.afterFilters
+      afterFilters: options.afterFilters,
+      route: route
     };
   }
   route = this.routes[route];
