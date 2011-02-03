@@ -1,3 +1,5 @@
+var Tyro = Tyro || {};
+
 /**
  * Creates a new Tyro instance.
  * <br/><br/> The Tyro constructor is very simple, it exposes 3 main methods for use:
@@ -12,7 +14,7 @@
  * @param {String} pageNotFoundUrl The url that the hash will be set to if a route cannot be matched. Null will mean the hash is unaffected.
  * @param {Function} routeMatched A function to be called when a route is matched.
  */
-function Tyro(options) {
+Tyro.Routes = function(options) {
   this.controllers = [], this.routes = {}, this.filters = {};
   this.options = $.extend({
     pageNotFoundUrl: "/page_not_found",
@@ -26,7 +28,7 @@ function Tyro(options) {
  * @param {Function} fn The reference to the controller constructor function
  * @memberOf Tyro#
  */
-Tyro.prototype.addController = function(fn) {
+Tyro.Routes.prototype.addController = function(fn) {
   this.controllers.push(fn);
 }
 
@@ -35,7 +37,7 @@ Tyro.prototype.addController = function(fn) {
  * <br/><br/> Behind the scenes this initialises the controllers and sets up a hash change listener
  * @memberOf Tyro#
  */
-Tyro.prototype.run = function() {
+Tyro.Routes.prototype.run = function() {
   this.initControllers();
   this.setupHashChange();
 }
@@ -45,7 +47,7 @@ Tyro.prototype.run = function() {
  * @memberOf Tyro#
  * @private
  */
-Tyro.prototype.initControllers = function() {
+Tyro.Routes.prototype.initControllers = function() {
   $.each(this.controllers, function(i, controller) {
     if(controller) new controller();
   });
@@ -56,7 +58,7 @@ Tyro.prototype.initControllers = function() {
  * It also triggers a change so that the initial view can be setup from current hash.
  * @memberOf Tyro#
  */
-Tyro.prototype.setupHashChange = function() {
+Tyro.Routes.prototype.setupHashChange = function() {
   var win = $(window);
   win.hashchange($.proxy(this.handleHashChange, this));
   win.hashchange();
@@ -66,7 +68,7 @@ Tyro.prototype.setupHashChange = function() {
  * Handles the hash change event
  * @memberOf Tyro#
  */
-Tyro.prototype.handleHashChange = function() {
+Tyro.Routes.prototype.handleHashChange = function() {
   this.triggerRoute(this.getHash());
 }
 
@@ -75,7 +77,7 @@ Tyro.prototype.handleHashChange = function() {
  * @memberOf Tyro#
  * @param {String} hash The new hash i.e. /admin/campaigns
  */
-Tyro.prototype.setHash = function(hash) {
+Tyro.Routes.prototype.setHash = function(hash) {
   document.location.hash = hash;
 }
 
@@ -84,7 +86,7 @@ Tyro.prototype.setHash = function(hash) {
  * @memberOf Tyro#
  * @returns {String} The hash portion of the url (without the hash)
  */
-Tyro.prototype.getHash = function() {
+Tyro.Routes.prototype.getHash = function() {
   return document.location.hash.substr(1);
 }
 
@@ -93,7 +95,7 @@ Tyro.prototype.getHash = function() {
  * @memberOf Tyro#
  * @param {String} url The url i.e. "/admin/campaigns"
  */
-Tyro.prototype.triggerRoute = function(url) {
+Tyro.Routes.prototype.triggerRoute = function(url) {
   var matches = null, urlFound = false;
   
   // loop through all the routes
@@ -126,7 +128,7 @@ Tyro.prototype.triggerRoute = function(url) {
  * @param {Array} matches The parameters that were in the path (i.e. /my/url/:uuid1/:uuid2) The values for :uuid1 and :uuid2 will be in the array
  * @return {Boolean}
  */
-Tyro.prototype.handleRouteFound = function(url, route, matches) {
+Tyro.Routes.prototype.handleRouteFound = function(url, route, matches) {
   
   
   // tell the routeMatched callback if present about the route
@@ -176,7 +178,7 @@ Tyro.prototype.handleRouteFound = function(url, route, matches) {
   return false;
 }
 
-Tyro.prototype.handleFilterFound = function(url, filter, matches) {
+Tyro.Routes.prototype.handleFilterFound = function(url, filter, matches) {
   $.each(filter.callbacks, $.proxy(function(i, fn){
     fn.apply(this, matches);
   }, this));
@@ -189,7 +191,7 @@ Tyro.prototype.handleFilterFound = function(url, filter, matches) {
  * @param {String} route The route i.e. "/my/url"
  * @param {Function} callback 
  */
-Tyro.prototype.addRoute = function(route, callback, options) {
+Tyro.Routes.prototype.addRoute = function(route, callback, options) {
   options = $.extend({
     beforeFilters: [],
     afterFilters: []
@@ -231,7 +233,7 @@ Tyro.prototype.addRoute = function(route, callback, options) {
  * then when the url is /admin/campaigns/add the /admin/campaigns/:uuid route will be incorrectly fired
  *
  */
-Tyro.prototype.routeToRegExp = function(route) {
+Tyro.Routes.prototype.routeToRegExp = function(route) {
   
   if(typeof route !== "string") return route;
   
@@ -256,7 +258,7 @@ Tyro.prototype.routeToRegExp = function(route) {
  * @param {String} url The url i.e. /my/path/123
  * @returns {Object} The object keyed by route param names
  */
-Tyro.prototype.getParamsFromRoute = function(route, url) {
+Tyro.Routes.prototype.getParamsFromRoute = function(route, url) {
   var params = {};
   var paramsMatcher = /:([\w\d]+)/g;
   paramsMatcher.lastIndex = 0; // ie bug - check out sammy
@@ -306,7 +308,7 @@ Tyro.prototype.getParamsFromRoute = function(route, url) {
  * t.addRoute("/some/place/123/456");
  * 
  */
-Tyro.prototype.addFilter = function(route, callback) {
+Tyro.Routes.prototype.addFilter = function(route, callback) {
   if(!this.filters[route]) {
     this.filters[route] = { regex: this.routeToRegExp(route), callbacks: [] };
   }

@@ -13,31 +13,31 @@ function stubFn(returnValue) {
   return fn;
 }
 
-module("new Tyro()");
+module("new Tyro.Routes()");
 
-test("Tyro is a constructor function", function() {
-  equals(typeof Tyro, "function", "Tyro is of type function.");
+test("Tyro.Routes is a constructor function", function() {
+  equals(typeof Tyro.Routes, "function", "Tyro.Routes is of type function.");
 });
 
-test("A new Tyro application should have no controllers", function() {
-	var t = new Tyro();
+test("A new Tyro.Routes application should have no controllers", function() {
+	var t = new Tyro.Routes();
 	equals(t.controllers.length, 0, "The controllers array is empty");
 });
 
-test("A new Tyro application should have no routes", function() {
-	var t = new Tyro();
+test("A new Tyro.Routes application should have no routes", function() {
+	var t = new Tyro.Routes();
 	ok($.isEmptyObject(t.routes), "The routes object is empty");
 });
 
-test("A new Tyro application should have a default pageNotFoundUrl option setting", function() {
-	var t = new Tyro();
+test("A new Tyro.Routes application should have a default pageNotFoundUrl option setting", function() {
+	var t = new Tyro.Routes();
 	equals(typeof t.options.pageNotFoundUrl, "string", "The default pageNotFoundUrl option is a string.");
 });
 
 module("addController()");
 
 test("Adding a controller should add it to the controllers array", function() {
-	var t = new Tyro();
+	var t = new Tyro.Routes();
 	var func = function() {};
 	t.addController(func);
 	equals(t.controllers[0], func, "The array contains the function that was added.");
@@ -45,7 +45,7 @@ test("Adding a controller should add it to the controllers array", function() {
 
 module("addRoute()", {
   setup: function() {
-    this.t = new Tyro();
+    this.t = new Tyro.Routes();
   },
   teardown: function() {
     this.t = null;
@@ -103,7 +103,7 @@ test("Adding two callbacks to the same route url should only create one route it
 module("getHash()");
 
 test("Getting the hash, should get the hash value from the document location without the # character", function() {
-  var t = new Tyro();
+  var t = new Tyro.Routes();
   document.location.hash = "woop";
   equals("woop", t.getHash(), "The value returned should be woop.");
 });
@@ -111,7 +111,7 @@ test("Getting the hash, should get the hash value from the document location wit
 module("setHash()");
 
 test("Setting hash, should change the hash value in document.location", function() {
-  var t = new Tyro();
+  var t = new Tyro.Routes();
   t.setHash("woop2");
   equals(document.location.hash.substr(1), "woop2", "The document.location.hash value (without the #) is woop2.")
 });
@@ -119,7 +119,7 @@ test("Setting hash, should change the hash value in document.location", function
 module("_routeToRegExp()");
 
 test("Converting a route to a regex, should return a correctly formed regex", function() {
-  var t = new Tyro();
+  var t = new Tyro.Routes();
   var reg = t.routeToRegExp("/woop/:uuid/twooop").toString()
   //equals(t.routeToRegExp("/woop/:uuid/twooop").toString(), "/^/woop/([^/]+)/twooop/?$/", "The regex returned was correctly replaced.");
 });
@@ -127,7 +127,7 @@ test("Converting a route to a regex, should return a correctly formed regex", fu
 module("getParamsFromRoute()")
 
 test("Get params from route returns object with param names as keys", function() {
-  var t = new Tyro();
+  var t = new Tyro.Routes();
   var obj = t.getParamsFromRoute("/setup/:uuid/:whatever", "/setup/123/56d");
   equals(obj.uuid, "123");
   equals(obj.whatever, "56d");
@@ -136,7 +136,7 @@ test("Get params from route returns object with param names as keys", function()
 module("_triggerRoute()");
 
 test("Triggering a route that does not exist should set the hash to the pageNotFoundUrl (defined in the options property)", function() {
-  var t = new Tyro();
+  var t = new Tyro.Routes();
   t.setHash = stubFn(); 
   t.triggerRoute();
   ok(t.setHash.called, "The setHash function was called.");
@@ -144,7 +144,7 @@ test("Triggering a route that does not exist should set the hash to the pageNotF
 });
 
 test("Triggering a route that exists should call the callback functions", function() {
-  var t = new Tyro();
+  var t = new Tyro.Routes();
   var func1 = stubFn();
   t.addRoute("/my/url", func1);
   t.triggerRoute("/my/url");
@@ -152,7 +152,7 @@ test("Triggering a route that exists should call the callback functions", functi
 });
 
 test("Triggering a route with a particular :param should pass the value to the callback.", function() {
-  var t = new Tyro();
+  var t = new Tyro.Routes();
   var func1 = stubFn();
   var func2 = stubFn();
   t.addRoute("/admin/:uuid", func1);
@@ -167,7 +167,7 @@ test("Triggering a route with a particular :param should pass the value to the c
 module("_handleHashChange()");
 
 test("Handling the hash change should call _triggerRoute()", function() {
-  var t = new Tyro();
+  var t = new Tyro.Routes();
   t.getHash = stubFn("hello");
   t.triggerRoute = stubFn();
   t.handleHashChange();
@@ -186,7 +186,7 @@ module("_setupHashChange()", {
 });
 
 test("Setting up the hash change handler should call $('obj').hashchange", function() {
-  var t = new Tyro();
+  var t = new Tyro.Routes();
   t.setupHashChange();  
   ok($.fn.hashchange.called, "The hashchange was called.");
   equals($.fn.hashchange.thisValue[0], window, "The 'this' value is a jQuery collection with the window object inside the first item.");
@@ -198,7 +198,7 @@ module("_initControllers()");
 test("Initiating the controllers should loop through each controller constructor and create a new instance.", function() {
   var Controller1 = stubFn();
   var Controller2 = stubFn();
-  var t = new Tyro();
+  var t = new Tyro.Routes();
   t.controllers = [Controller1, Controller2];
   t.initControllers();
   ok(Controller1.called, "Constructor invoked");
@@ -210,7 +210,7 @@ test("Initiating the controllers should loop through each controller constructor
 module("run()");
 
 test("Running the application should call _initControllers and _setupHashChange", function() {
-  var t = new Tyro();
+  var t = new Tyro.Routes();
   t.initControllers = stubFn();
   t.setupHashChange = stubFn();
   t.run();
@@ -221,7 +221,7 @@ test("Running the application should call _initControllers and _setupHashChange"
 module("addFilter()");
 
 test("Adding a filter adds the callbacks to the filters object", function() {
-  var t = new Tyro();
+  var t = new Tyro.Routes();
   var func = stubFn();
   var func2 = stubFn();
   
@@ -236,7 +236,7 @@ test("Adding a filter adds the callbacks to the filters object", function() {
 });
 
 test("2 Adding a filter adds the callbacks to the filters object", function() {
-  var t = new Tyro();
+  var t = new Tyro.Routes();
   var func = stubFn();
   var func2 = stubFn();
   t.addFilter("/woop/*", func2)
@@ -247,7 +247,7 @@ test("2 Adding a filter adds the callbacks to the filters object", function() {
 });
 
 test("3 Adding a filter adds the callbacks to the filters object", function() {
-  var t = new Tyro();
+  var t = new Tyro.Routes();
   var func = stubFn();
   var func2 = stubFn();
   t.addFilter("/nat/*", func2)
