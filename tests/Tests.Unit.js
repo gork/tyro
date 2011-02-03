@@ -118,20 +118,34 @@ test("Setting hash, should change the hash value in document.location", function
 
 module("_routeToRegExp()");
 
-test("Converting a route to a regex, should return a correctly formed regex", function() {
-  var t = new Tyro.Routes();
-  var reg = t.routeToRegExp("/woop/:uuid/twooop").toString()
+test("Converting a route to a regex, should return a correctly formed regex.", function() {
+  
+  // NOTE: Can't test this very easily - different browsers expose the regex object differently
+  
+  //var t = new Tyro.Routes();
+  //var reg = t.routeToRegExp("/woop/:uuid/twooop").toString()
   //equals(t.routeToRegExp("/woop/:uuid/twooop").toString(), "/^/woop/([^/]+)/twooop/?$/", "The regex returned was correctly replaced.");
 });
 
 module("getParamsFromRoute()")
 
-test("Get params from route returns object with param names as keys", function() {
+test("Getting the parameters from a route (and url) returns an object keyed by param names.", function() {
   var t = new Tyro.Routes();
   var obj = t.getParamsFromRoute("/setup/:uuid/:whatever", "/setup/123/56d");
   equals(obj.uuid, "123");
   equals(obj.whatever, "56d");
 })
+
+test("Getting the parameters from a route (and url) includes the querystring parameters in the object too.", function() {
+  var func = stubFn();
+  var t = new Tyro.Routes();
+  var obj = t.getParamsFromRoute("/setup/:uuid/:whatever", "/setup/123/56d/?a=1&b=2");
+  equals(obj.uuid, "123");
+  equals(obj.whatever, "56d");
+  equals(obj.a, "1");
+  equals(obj.b, "2");
+})
+
 
 module("_triggerRoute()");
 
@@ -151,7 +165,17 @@ test("Triggering a route that exists should call the callback functions", functi
   ok(func1.called, "The callback function was called.");
 });
 
-test("Triggering a route with a particular :param should pass the value to the callback.", function() {
+
+test("Triggering a route should pass an empty params object as the first argument", function() {
+  var t = new Tyro.Routes();
+  var func1 = stubFn();
+  var func2 = stubFn();
+  t.addRoute("/admin/", func1);
+  t.triggerRoute("/admin/");
+  equals(typeof func1.args[0], "object");
+});
+
+test("Triggering a route should pass params object as the first argument with keys as params from url.", function() {
   var t = new Tyro.Routes();
   var func1 = stubFn();
   var func2 = stubFn();
@@ -159,10 +183,22 @@ test("Triggering a route with a particular :param should pass the value to the c
   t.addRoute("/admin/:uuid/something/:whatever", func2);
   t.triggerRoute("/admin/1");
   t.triggerRoute("/admin/2345abc/something/fd54")
-  equals(func1.args[0], "1", "The param was passed to the function.");  
-  equals(func2.args[0], "2345abc", "The param was passed to the function.");  
-  equals(func2.args[1], "fd54", "The param was passed to the function.");
+  equals(typeof func1.args[0], "object");  
+  equals(func1.args[0].uuid, "1");
+  equals(func2.args[0].uuid, "2345abc");
+  equals(func2.args[0].whatever, "fd54");
 });
+
+test("Triggering a route should pass params object populated with querystring params.", function() {
+  var t = new Tyro.Routes();
+  var fn1 = stubFn();
+  t.addRoute("/admin/", fn1);
+  t.triggerRoute("/admin/?a=1&b=2");
+   
+  equals(typeof fn1.args[0], "object");  
+  equals(fn1.args[0].a, "1");  
+  equals(fn1.args[0].b, "2");  
+})
 
 module("_handleHashChange()");
 
@@ -235,7 +271,7 @@ test("Adding a filter adds the callbacks to the filters object", function() {
   ok(func.called, "The filter callback was called.");
 });
 
-test("2 Adding a filter adds the callbacks to the filters object", function() {
+test("Adding a filter adds the callbacks to the filters object", function() {
   var t = new Tyro.Routes();
   var func = stubFn();
   var func2 = stubFn();
@@ -246,7 +282,7 @@ test("2 Adding a filter adds the callbacks to the filters object", function() {
   ok(func2.called, "The function was called for the second filter");
 });
 
-test("3 Adding a filter adds the callbacks to the filters object", function() {
+test("Adding a filter adds the callbacks to the filters object", function() {
   var t = new Tyro.Routes();
   var func = stubFn();
   var func2 = stubFn();
@@ -256,3 +292,6 @@ test("3 Adding a filter adds the callbacks to the filters object", function() {
   ok(t.filters["/nat/*"], "The filter has been added to the filters collection.");
   ok(func2.called, "The function was called for the second filter");  
 });
+
+
+

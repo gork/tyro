@@ -101,7 +101,7 @@ Tyro.Routes.prototype.triggerRoute = function(url) {
   // loop through all the routes
   $.each(this.routes, $.proxy(function(i, route) {
     matches = url.match(route.regex);
-    // if the route was matched
+    // if the route was matched        
     if(matches) {   
       urlFound = true;   
       return this.handleRouteFound(url, route, matches);
@@ -130,19 +130,20 @@ Tyro.Routes.prototype.triggerRoute = function(url) {
  */
 Tyro.Routes.prototype.handleRouteFound = function(url, route, matches) {
   
+  var params = this.getParamsFromRoute(route.route, url);
   
   // tell the routeMatched callback if present about the route
   if(this.options.routeMatched) {
     this.options.routeMatched(url);
   }
-  console.log(matches);
-  matches = matches.splice(1);
-  console.log(matches);
+  
+  //matches = matches.splice(1);
+
   // check the before filters before running the route callbacks
   if(route.beforeFilters) {
     var beforeFiltersSuccess = true;
     $.each(route.beforeFilters, function(i, func) {
-      if(!func(matches)) {
+      if(!func(params)) {
         beforeFiltersSuccess = false;
         return false;
       }
@@ -158,19 +159,18 @@ Tyro.Routes.prototype.handleRouteFound = function(url, route, matches) {
     filterMatches = url.match(filter.regex);
     if(filterMatches) {
       this.handleFilterFound(url, filter, filterMatches);
-    }
-    
+    }    
   }, this));
   
   // run each callback against the route
-  $.each(route.callbacks, function(i, callback) {
-    callback.apply(null, matches);
+  $.each(route.callbacks, function(i, fn) {    
+    fn.call(null, params);
   });
   
   // check the after filters after running the route callbacks
   if(route.afterFilters) {
-    $.each(route.afterFilters, function(i, func) {
-      func.apply(null, matches);
+    $.each(route.afterFilters, function(i, fn) {
+      fn.call(null, params);
     });
   }
   
@@ -208,7 +208,8 @@ Tyro.Routes.prototype.addRoute = function(route, callback, options) {
       regex: this.routeToRegExp(route),
       callbacks: [],
       beforeFilters: options.beforeFilters,
-      afterFilters: options.afterFilters
+      afterFilters: options.afterFilters,
+      route: route
     };
   }
   route = this.routes[route];
@@ -247,7 +248,7 @@ Tyro.Routes.prototype.routeToRegExp = function(route) {
   route = route.replace(/([^\?]):[^\/]*/g, "$1([^\/]+)");
 
   //return regex
-  return new RegExp("^" + route + "\/?$");
+  return new RegExp("^" + route + "\/?(?:\\?(.*))?$");
 }
 
 /**
@@ -263,7 +264,20 @@ Tyro.Routes.prototype.getParamsFromRoute = function(route, url) {
   var paramsMatcher = /:([\w\d]+)/g;
   paramsMatcher.lastIndex = 0; // ie bug - check out sammy
   var pathReplacer = "([^\/]+)";
-  var queryStringMatcher = /\?([^#]*)$/;
+  var queryStringMatcher = /\/?\?([^#]*)$/;
+  
+  // strip querystring but store key valued object ready to merge later
+  // after we have converted the regular url params in an object
+  var qs = url.match(queryStringMatcher);
+  if(qs) {
+    qs = qs[1];
+    qs = $.unDelimit(qs);
+  }
+  else {
+    qs = {};
+  }
+  
+  url = url.replace(queryStringMatcher, '');
 
   var param_names = [], path_match, path = route, path_params;
   while ((path_match = paramsMatcher.exec(route)) !== null) {
@@ -273,7 +287,6 @@ Tyro.Routes.prototype.getParamsFromRoute = function(route, url) {
   path = new RegExp("^" + path.replace(paramsMatcher, pathReplacer) + "$");
 
   if ((path_params = path.exec(url)) !== null) {
-
     // dont want the first bit
     path_params.shift();
     // for each of the matches
@@ -287,7 +300,8 @@ Tyro.Routes.prototype.getParamsFromRoute = function(route, url) {
       }
     });
   }
-
+  
+  params = $.extend(params, qs);
   return params;
 }
 
