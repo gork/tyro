@@ -315,3 +315,22 @@ test("Tearing down a partial view should call teardown on all childViews as well
 });
 
 module("teardownPartialViews()");
+
+test("teardownPartialViews() should be a method on a pc instance", function() {
+	var pc = new Tyro.PageController();	
+	equals(typeof pc.teardownPartialViews, "function");
+});
+
+test("When tearing down many partial views, it should delegate to the teardownPartialView() method", function() {
+	var pc = new Tyro.PageController();
+	pc.teardownPartialView = stubFn();
+	pc.partialViews = $.extend(true, {}, fixtures.main);
+	pc.partialViews["setup"].active = true;
+	pc.partialViews["loggedIn"].active = true;
+	var arr = [pc.partialViews["setup"], pc.partialViews["loggedIn"]]
+	
+	pc.teardownPartialViews(arr);
+	
+	equals(pc.teardownPartialView.callCount, 2);
+	equals(pc.teardownPartialView.args[0], pc.partialViews["loggedIn"])
+});

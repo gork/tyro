@@ -1,4 +1,18 @@
-	/*this.partialViews = {	
+	/*
+	 
+	 
+	 
+	 action = function() {		
+		this.app.pageController.renderPartialView({partialViewId: "dashboard", this.view})
+		this.view.showLoader();
+		this.view.hideLoader();
+		this.view.render();		
+	 }
+	 
+	 
+	 
+	 
+	 this.partialViews = {	
 		"loggedOut": {
 			id:"loggedOut",
 			view: new Thick.Views.LoggedOut(),
