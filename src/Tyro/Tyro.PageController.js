@@ -1,59 +1,15 @@
-	/*
-	 
-	 
-	 
-	 action = function() {		
-		this.app.pageController.renderPartialView({partialViewId: "dashboard", this.view})
-		this.view.showLoader();
-		this.view.hideLoader();
-		this.view.render();		
-	 }
-	 
-	 
-	 
-	 
-	 this.partialViews = {	
-		"loggedOut": {
-			id:"loggedOut",
-			view: new Thick.Views.LoggedOut(),
-			active: false,
-			partialViewId: null,
-			childViews: []
-		},
-		"loggedIn": {
-			id:"loggedIn",
-			view: new Thick.Views.LoggedIn(),
-			active: false,
-			partialViewId: null,
-			childViews: []
-		},
-		"dashboard": {
-			id:"dashboard",
-			view: new Thick.Views.Dashboard(),
-			active: false,
-			partialViewId: "loggedIn",
-			childViews: []
-		},
-		"setup": {
-			id: "setup",
-			view: new Thick.Views.Setup(),
-			active: false,
-			partialViewId: "loggedIn",
-			childViews: []
-		},
-		"campaigns": {
-			id: "campaigns",
-			view: new Thick.Views.Campaigns(),
-			active: false,
-			partialViewId: "setup",
-			childViews: []
+/*
+	  controller.prototype.action = function() {		
+				this.app.pageController.renderPartialView({partialViewId: "dashboard", this.view})
+				this.view.showLoader();
+				this.view.hideLoader();
+				this.view.render();		
 		}
-	}*/
+*/
 
 
 var Tyro = Tyro || {};
 Tyro.PageController = function() {
-	
 	this.partialViews = {};
 	
 	// this is because i don't know how to recurse properly - brain hurts
@@ -105,7 +61,7 @@ Tyro.PageController.prototype.addPartialView = function(pv) {
  * but we don't want the partialView to be rerendered or childviews of child partials etc to be torn down
  * @function
  * @public
- * @memberOf Tyro.PageController *
+ * @memberOf Tyro.PageController
  */
 Tyro.PageController.prototype.render = function(options) {
   console.log("------------------------------PAGECONTROLLER > RENDER");
@@ -425,4 +381,13 @@ Tyro.PageController.prototype.teardownPartialViews = function(arr) {
 		for(var i = 0; i < arr.length; i++) {
 				this.teardownPartialView(arr[i]);
 		}
+}
+
+Tyro.PageController.prototype.getPartialViewDomContainer = function(partialViewId) {
+		var returnVal = null;
+		var pv = this.partialViews[partialViewId];
+		if(pv && pv.view && pv.view.container) {
+				returnVal = pv.view.container;
+		}
+		return returnVal;
 }

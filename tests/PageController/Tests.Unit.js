@@ -334,3 +334,24 @@ test("When tearing down many partial views, it should delegate to the teardownPa
 	equals(pc.teardownPartialView.callCount, 2);
 	equals(pc.teardownPartialView.args[0], pc.partialViews["loggedIn"])
 });
+
+module("getPartialViewDomContainer()");
+
+test("getPartialViewDomContainer() should be a method on a pc instance", function() {
+	var pc = new Tyro.PageController();	
+	equals(typeof pc.getPartialViewDomContainer, "function");
+});
+
+test("When partialView doesn't exist it should return null", function() {
+	var pc = new Tyro.PageController();
+	
+	var result = pc.getPartialViewDomContainer();
+	
+	equals(result, null);
+});
+
+test("When partialView exists return the view container", function() {
+	var pc = new Tyro.PageController();
+	
+	// todo
+});
