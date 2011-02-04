@@ -258,18 +258,60 @@ test("2) Getting non attached partial views should return the non attached activ
 
 module("getPartialViewsInActiveParents()");
 
-test("Is a method", function() {
+test("getPartialViewsInActiveParents() should be a method on a pc instance", function() {
 	var pc = new Tyro.PageController();	
 	equals(typeof pc.getPartialViewsInActiveParents, "function");
 });
 
 test("Getting inactive parent partial views should return the correct items.", function() {
 	var pc = new Tyro.PageController();	
-	pc.partialViews = $.extend(true,{}, fixtures.main);
 	
-	var result = pc.getPartialViewsInActiveParents("dashboard");
-	equals(result.length, 2);
-	equals(result[0], pc.partialViews["loggedIn"]);
-	equals(result[1], pc.partialViews["dashboard"]);
+	pc.partialViews = $.extend(true,{}, fixtures.main);
+	var result1 = pc.getPartialViewsInActiveParents("loggedOut");
+	equals(result1.length, 1);
+	equals(result1[0], pc.partialViews["loggedOut"]);
+	
+	//1
+	pc.partialViews = $.extend(true,{}, fixtures.main);
+	var result2 = pc.getPartialViewsInActiveParents("dashboard");
+	equals(result2.length, 2);
+	equals(result2[0], pc.partialViews["loggedIn"]);
+	equals(result2[1], pc.partialViews["dashboard"]);
+	
+	//2
+	pc.partialViews = $.extend(true,{}, fixtures.main);
+	var result3 = pc.getPartialViewsInActiveParents("campaigns");
+	equals(result3.length, 3);
+	equals(result3[0], pc.partialViews["loggedIn"]);
+	equals(result3[1], pc.partialViews["setup"]);
+	equals(result3[2], pc.partialViews["campaigns"]);
 	
 });
+
+module("teardownPartialView()");
+
+test("teardownPartialView() should be a method on a pc instance", function() {
+	var pc = new Tyro.PageController();	
+	equals(typeof pc.teardownPartialView, "function");
+});
+
+test("Tearing down a partial view should call teardown on all childViews as well as the partials main view", function() {
+	// setup
+	var pc = new Tyro.PageController();
+	pc.partialViews["setup"] = $.extend(true,{}, fixtures.main["setup"]);
+	pc.partialViews["setup"].active = true;
+	var func = stubFn();
+	pc.partialViews["setup"].childViews = [{teardown: func}];
+	pc.partialViews["setup"].view.teardown = stubFn();
+	// exercise
+	pc.teardownPartialView("setup");
+	
+	// verify	
+	ok(func.called);
+	ok(pc.partialViews["setup"].view.teardown.called);
+	equals(pc.partialViews["setup"].active, false);
+	equals(pc.partialViews["setup"].childViews.length, 0);
+	
+});
+
+module("teardownPartialViews()");

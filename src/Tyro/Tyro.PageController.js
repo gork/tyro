@@ -1,13 +1,3 @@
-var Tyro = Tyro || {};
-Tyro.PageController = function() {
-	
-	this.partialViews = {};
-	
-	// stores the partialViews object
-	// this will be an empty object
-	// and i will expose a public method
-	// to add partialViews as long as the conform
-	// to the following structure etc
 	/*this.partialViews = {	
 		"loggedOut": {
 			id:"loggedOut",
@@ -45,6 +35,12 @@ Tyro.PageController = function() {
 			childViews: []
 		}
 	}*/
+
+
+var Tyro = Tyro || {};
+Tyro.PageController = function() {
+	
+	this.partialViews = {};
 	
 	// this is because i don't know how to recurse properly - brain hurts
 	this.activeChildren = [];	
@@ -208,7 +204,7 @@ Tyro.PageController.prototype.teardownNonAttachedPartialViews = function(partial
  */
 Tyro.PageController.prototype.renderParentPartialViews = function(partialViewId) {
   // get all the in-active parents and reverse them
-  var inActiveParents = this.getInActiveParentViews(partialViewId).reverse();
+  var inActiveParents = this.getPartialViewsInActiveParents(partialViewId).reverse();
 	// loop through, set to active and render them
   for(var i = 0; i < inActiveParents.length; i++) {
 		inActiveParents[i].active = true;
@@ -318,28 +314,6 @@ Tyro.PageController.prototype.getActiveChildrenViews = function(partialViewId) {
 }
 
 /**
- * The new and improved version of the above function
- * It is improved because it returns the activeChildren as opposed to setting the property
- */
-Tyro.PageController.prototype.getActiveChildrenViewsNew = function(partialViewId) {
-	var viewId = null;
-	var arr = [];
-	for(var view in this.partialViews) {
-		if(this.partialViews[view].active) {
-			if(partialViewId == this.partialViews[view].partialViewId) {
-				viewId = view;
-				arr.push(this.partialViews[view]);
-				break;
-			}
-		}
-	}
-	if(viewId) {
-		arr.concat(this.getActiveChildrenViewsNew(viewId));
-	}
-	return arr;
-}
-
-/**
  * This function is annoying me, i want it to return the non attached parents
  * as opposed to set the activeChildren
  *
@@ -351,23 +325,6 @@ Tyro.PageController.prototype.getActiveNonAttachedParents = function(partialView
 	else {
 		this.getActiveChildrenViews(partialViewId);
 	}
-}
-
-Tyro.PageController.prototype.getActiveNonAttachedParentsNew = function(partialViewId, found) {
-	var arr = [];
-	if(found) {
-		arr.concat(this.getActiveChildrenViewsNew(partialViewId));
-	}
-	else {
-			if(this.partialViews[partialViewId] && this.partialViews[partialViewId].active == false) {
-				arr.concat(this.getActiveNonAttachedParentsNew(this.partialViews[partialViewId].partialViewId));
-			}
-			else {
-				arr.concat(this.getActiveNonAttachedParentsNew(partialViewId, true));
-			}
-	}
-
-	return arr;
 }
 
 /**
@@ -389,6 +346,8 @@ Tyro.PageController.prototype.getInActiveParentViews = function(partialViewId) {
 	}
 	return inActiveViews;
 }
+
+/*********************** NEW ***********************/
 
 Tyro.PageController.prototype.getPartialViewsNonAttachedActive = function(partialViewId) {
 		var returnVal = [];
@@ -435,3 +394,21 @@ Tyro.PageController.prototype.getPartialViewsInActiveParents = function(partialV
 		return returnVal.reverse();
 }
 
+Tyro.PageController.prototype.teardownPartialView = function(partialViewId) {
+		var pv = this.partialViews[partialViewId];
+		if(!pv) return;
+		var childViews = pv.childViews;
+		for(var i = 0; i < childViews.length; i++) {
+				childViews[i].teardown();
+				childViews.splice(i, 1);
+				i--;
+		}
+		pv.view.teardown();
+		pv.active = false;		
+}
+
+Tyro.PageController.prototype.teardownPartialViews = function(arr) {
+		for(var i = 0; i < arr.length; i++) {
+				this.teardownPartialView(arr[i]);
+		}
+}
