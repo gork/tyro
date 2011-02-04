@@ -1,12 +1,14 @@
 var Tyro = Tyro || {};
 Tyro.PageController = function() {
 	
+	this.partialViews = {};
+	
 	// stores the partialViews object
 	// this will be an empty object
 	// and i will expose a public method
 	// to add partialViews as long as the conform
 	// to the following structure etc
-	this.partialViews = {	
+	/*this.partialViews = {	
 		"loggedOut": {
 			id:"loggedOut",
 			view: new Thick.Views.LoggedOut(),
@@ -42,10 +44,42 @@ Tyro.PageController = function() {
 			partialViewId: "setup",
 			childViews: []
 		}
-	}
+	}*/
 	
 	// this is because i don't know how to recurse properly - brain hurts
 	this.activeChildren = [];	
+}
+
+Tyro.PageController.prototype.addPartialView = function(pv) {
+		if(typeof pv !== "object") {
+				throw new TypeError("Tyro: PageController: addPartialView: provide a partial view");
+		}
+		if(typeof pv.id !== "string") {
+				throw new TypeError("Tyro: PageController: addPartialView: Must provide an id");
+		}
+		if(typeof pv.active !== "boolean") {
+				throw new TypeError("Tyro: PageController: addPartialView: Must provide an active property");
+		}
+		if(typeof pv.partialViewId !== "string") {
+				throw new TypeError("Tyro: PageController: addPartialView: Must provide an partialViewId property");
+		}
+		if(!$.isArray(pv.childViews)) {
+				throw new TypeError("Tyro: PageController: addPartialView: Must provide a childViews array property");
+		}
+		if(typeof pv.view !== "object") {
+				throw new TypeError("Tyro: PageController: addPartialView: Must provide a view object property");
+		}
+		if(typeof pv.view.render !== "function") {
+				throw new TypeError("Tyro: PageController: addPartialView: Must provide a view with a render method");
+		}
+		if(typeof pv.view.teardown !== "function") {
+				throw new TypeError("Tyro: PageController: addPartialView: Must provide a view with a teardown method");
+		}
+		if(typeof pv.view.container !== "string") {
+				throw new TypeError("Tyro: PageController: addPartialView: Must provide a view with a container property");
+		}
+		
+		this.partialViews[pv.id] = pv;
 }
 
 /**
@@ -91,7 +125,6 @@ Tyro.PageController.prototype.render = function(options) {
       if(partialViewParentsChildren[i].container === partialViewContainer) {
         partialViewParentsChildren[i].teardown();
         partialViewParentsChildren.splice(i, 1);
-  			i--;
         break;
       }
     }    
@@ -163,14 +196,6 @@ Tyro.PageController.prototype.teardownNonAttachedPartialViews = function(partial
   }
 }
 
-Tyro.PageController.prototype.teardownNonAttachedPartialViewsNew = function(partialViewId) {
-	this.activeChildren = this.getActiveNonAttachedParentsNew(partialViewId);
-  this.activeChildren.reverse();
-  if(this.activeChildren.length) {
-		this.teardownChildren();
-  }
-}
-
 
 /**
  * This function is responsible for rendering all partialViews required before
@@ -201,7 +226,7 @@ Tyro.PageController.prototype.renderParentPartialViews = function(partialViewId)
  */
 Tyro.PageController.prototype.teardownChildPartialViews = function(partialViewId) {
 	// again, set the this.activeChildren
-	this.activeChildren = this.getActiveChildrenViewsNew(partialViewId);
+	this.getActiveChildrenViews(partialViewId);
 	
 	// if the activeChildren has a length of more than zero
   if(this.activeChildren.length) {
@@ -364,3 +389,49 @@ Tyro.PageController.prototype.getInActiveParentViews = function(partialViewId) {
 	}
 	return inActiveViews;
 }
+
+Tyro.PageController.prototype.getPartialViewsNonAttachedActive = function(partialViewId) {
+		var returnVal = [];
+		var topLevelPartialViewActiveNonAttached = null;
+		for(var pv in this.partialViews) {
+				if(this.partialViews[pv].partialViewId === null) {
+						if(this.partialViews[pv].active) {
+								topLevelPartialViewActiveNonAttached = pv;
+								returnVal.push(this.partialViews[pv]);
+								break;
+						}
+				}
+		}
+		if(topLevelPartialViewActiveNonAttached) {				
+				returnVal = returnVal.concat(this.getPartialViewsChildrenActive(topLevelPartialViewActiveNonAttached))
+		}
+		return returnVal.reverse();
+}
+
+Tyro.PageController.prototype.getPartialViewsChildrenActive = function(partialViewId) {
+	var viewId = null;
+	var arr = [];
+	for(var view in this.partialViews) {
+		if(this.partialViews[view].active) {
+			if(partialViewId == this.partialViews[view].partialViewId) {
+				viewId = view;
+				arr.push(this.partialViews[view]);
+				break;
+			}
+		}
+	}
+	if(viewId) {
+		arr = arr.concat(this.getPartialViewsChildrenActive(viewId));
+	}
+	return arr.reverse();
+}
+
+Tyro.PageController.prototype.getPartialViewsInActiveParents = function(partialViewId) {
+		var returnVal = [];
+		while(this.partialViews[partialViewId] && this.partialViews[partialViewId].active == false ) {
+				returnVal.push(this.partialViews[partialViewId]);
+				partialViewId = this.partialViews[partialViewId].partialViewId;
+		}
+		return returnVal.reverse();
+}
+
