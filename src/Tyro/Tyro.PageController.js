@@ -150,8 +150,10 @@ Tyro.PageController.prototype.teardownNonAttachedPartialViews = function(partial
 	// this currently doesn't return anything, it pushes to this.activeChildren
 	// because I don't know how to recurse :(
 	this.getActiveNonAttachedParents(partialViewId);
+	
 	// reverse the array, because they are in the opposite order
   this.activeChildren.reverse();
+	
 	// if the activeChildren has a length of more than zero
   if(this.activeChildren.length) {
 		// tear down the children - THIS IS A BIT MIS LEADING, as its not tearing down the children
@@ -160,6 +162,15 @@ Tyro.PageController.prototype.teardownNonAttachedPartialViews = function(partial
 		this.teardownChildren();
   }
 }
+
+Tyro.PageController.prototype.teardownNonAttachedPartialViewsNew = function(partialViewId) {
+	this.activeChildren = this.getActiveNonAttachedParentsNew(partialViewId);
+  this.activeChildren.reverse();
+  if(this.activeChildren.length) {
+		this.teardownChildren();
+  }
+}
+
 
 /**
  * This function is responsible for rendering all partialViews required before
@@ -298,7 +309,7 @@ Tyro.PageController.prototype.getActiveChildrenViewsNew = function(partialViewId
 		}
 	}
 	if(viewId) {
-		arr.concat(this.getActiveChildrenViews(viewId));
+		arr.concat(this.getActiveChildrenViewsNew(viewId));
 	}
 	return arr;
 }
@@ -315,6 +326,23 @@ Tyro.PageController.prototype.getActiveNonAttachedParents = function(partialView
 	else {
 		this.getActiveChildrenViews(partialViewId);
 	}
+}
+
+Tyro.PageController.prototype.getActiveNonAttachedParentsNew = function(partialViewId, found) {
+	var arr = [];
+	if(found) {
+		arr.concat(this.getActiveChildrenViewsNew(partialViewId));
+	}
+	else {
+			if(this.partialViews[partialViewId] && this.partialViews[partialViewId].active == false) {
+				arr.concat(this.getActiveNonAttachedParentsNew(this.partialViews[partialViewId].partialViewId));
+			}
+			else {
+				arr.concat(this.getActiveNonAttachedParentsNew(partialViewId, true));
+			}
+	}
+
+	return arr;
 }
 
 /**
