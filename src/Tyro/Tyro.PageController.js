@@ -171,15 +171,28 @@ Tyro.PageController.prototype.renderPartialViews = function(partialViews) {
 }
 
 Tyro.PageController.prototype.render = function(partialViewId) {
+		if(!partialViewId) {
+				throw new TypeError("Tyro: PageController: render: Must provide a partialViewId");
+		}
+		
 		if(this.isPartialViewActive(partialViewId)) {
 				this.teardownPartialViews(this.getPartialViewsChildrenActive(partialViewId));
 		}
 		else {
+				// 1. teardown non attached
 				this.teardownPartialViews(this.getPartialViewsNonAttachedActive(partialViewId));
+				
+				// 2. ensure we teardown childViews with same dom container
 				var parent = this.partialViews[this.partialViews[partialViewId].partialViewId];
 				if(parent) {
 						this.teardownChildView(parent.id, this.partialViews[partialViewId].view.container);
 				}
+				
+				// 3. teardown views that are active and have same container as this.partialViews[partialViewId]
+				// TODODODODODODOD				
+				
+				
+				// 4. render partial views
 				this.renderPartialViews(this.getPartialViewsInActiveParents(partialViewId));		
 		}
 }

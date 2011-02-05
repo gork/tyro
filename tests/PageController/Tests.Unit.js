@@ -27,7 +27,7 @@ fixtures.main = {
 		view: {
 			render: function() {},
 			teardown: function() {},
-			container: "some container"
+			container: "#main"
 		},
 		active: false,
 		partialViewId: "loggedIn",
@@ -38,7 +38,7 @@ fixtures.main = {
 		view: {
 			render: function() {},
 			teardown: function() {},
-			container: "some container"
+			container: "#main"
 		},
 		active: false,
 		partialViewId: "loggedIn",
@@ -384,7 +384,7 @@ test("When the partial-view does exist it should return the view container.", fu
 	
 	var result = pc.getPartialViewDomContainer("setup");
 	
-	equals(result, "some container");
+	equals(result, "#main");
 	
 });
 
@@ -487,7 +487,16 @@ test("Every instance of Tyro.PageController should have a render() method.", fun
 	equals(typeof pc.render, "function");
 });
 
-test("When rendering a partial view, its parent partial-views should be rendered.", function() {
+test("When rendering a partial-view with no argument, an error is thrown", function() {
+	var pc = new Tyro.PageController();
+	raises(function() {
+		pc.render();
+	}, "raised");
+
+});
+
+
+test("When rendering a partial-view, its parent partial-views should be rendered.", function() {
 	var pc = new Tyro.PageController();
 	pc.partialViews = $.extend(true, {}, fixtures.main);
 	
@@ -597,4 +606,24 @@ test("When trying to render a partial-view into a parent-partial-view that has a
 	ok(setupHomeView.teardown.called);
 	equals(pc.partialViews["setup"].childViews.length, 0);
 
+});
+
+test("When rendering a partial-view that is on the same level as one that is currently showing, it should be torn down", function() {
+	var pc = new Tyro.PageController();
+	pc.partialViews = $.extend(true, {}, fixtures.main);
+	pc.partialViews["loggedIn"].active = true;
+	pc.partialViews["setup"].active = true;
+	
+	var setupTeardown = stubFn();
+	pc.partialViews["setup"].view = {
+		teardown: setupTeardown
+	}
+	
+	pc.render("dashboard");
+	
+	ok(setupTeardown.called);
+	
+	
+	
+	
 });
