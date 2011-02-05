@@ -155,7 +155,7 @@ Tyro.PageController.prototype.teardownPartialView = function(partialViewId) {
 
 Tyro.PageController.prototype.teardownPartialViews = function(arr) {
 		for(var i = 0; i < arr.length; i++) {
-				this.teardownPartialView(arr[i]);
+				this.teardownPartialView(arr[i].id);
 		}
 }
 
@@ -212,10 +212,17 @@ Tyro.PageController.prototype.isPartialViewActive = function(partialViewId) {
 }
 
 Tyro.PageController.prototype.renderPartialViews = function(partialViews) {
-		
+		for(var i = 0; i < partialViews.length; i++) {
+				partialViews[i].view.render();
+				partialViews[i].active = true;
+		}
 }
 
-Tyro.PageController.prototype.renderPartialView = function(partialViewId) {
-		var parents = this.getPartialViewsInActiveParents(partialViewId);
-		
+Tyro.PageController.prototype.render = function(partialViewId) {
+		if(this.isPartialViewActive(partialViewId)) {
+				this.teardownPartialViews(this.getPartialViewsChildrenActive(partialViewId));
+		}
+		else {
+				this.renderPartialViews(this.getPartialViewsInActiveParents(partialViewId));		
+		}
 }

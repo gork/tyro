@@ -330,7 +330,7 @@ test("When tearing down many partial-views, it should delegate to the teardownPa
 	pc.teardownPartialViews(arr);
 	
 	equals(pc.teardownPartialView.callCount, 2);
-	equals(pc.teardownPartialView.args[0], pc.partialViews["loggedIn"])
+	equals(pc.teardownPartialView.args[0], "loggedIn");
 });
 
 module("getPartialViewDomContainer()");
@@ -381,6 +381,20 @@ test("When adding a view to a partial-view  it should be added to it's childView
 	
 });
 
+test("When adding a view that has the same container as a view already in the partial-views childViews array, teardown and remove it first.",  function() {
+	var pc = new Tyro.PageController();
+	pc.partialViews = $.extend(true, {}, fixtures.main);
+	var view1 = { teardown: stubFn(), container: "container1" };
+	var view2 = { teardown: stubFn(), container: "container2" };
+	var view3 = { teardown: stubFn(), container: "container1" };
+	pc.partialViews["setup"].childViews = [view1, view2];
+
+	pc.addChildView("setup", view3);
+
+	ok(view1.teardown.called);
+	ok(!view2.teardown.called);
+})
+
 module("isPartialViewActive()");
 
 test("Every instance of Tyro.PageController should have an isPartialViewActive() method.", function() {
@@ -407,14 +421,36 @@ test("When a view is active, this should return true", function() {
 
 module("renderPartialViews()");
 
-module("renderPartialView()");
-
-test("Every instance of Tyro.PageController should have a renderPartialView() method.", function() {
+test("Every instance of Tyro.PageController should have a renderPartialViews() method.", function() {
 	var pc = new Tyro.PageController();	
-	equals(typeof pc.renderPartialView, "function");
+	equals(typeof pc.renderPartialViews, "function");
 });
 
-test("When rendering a partial view, its parent partial views should be rendered", function() {
+test("When invoking this method, it should render each of the partial-views view and set to active", function() {
+	var pc = new Tyro.PageController();
+	pc.partialViews = $.extend(true, {}, fixtures.main);
+	var pvRender1 = stubFn();
+	var pvRender2 = stubFn();
+	pc.partialViews["loggedIn"].view = { render: pvRender1 };
+	pc.partialViews["setup"].view = {	render: pvRender2 };
+
+
+	pc.renderPartialViews([pc.partialViews["loggedIn"], pc.partialViews["setup"]]);
+
+	ok(pvRender1.called);
+	ok(pc.partialViews["loggedIn"].active);
+	ok(pvRender2.called);
+	ok(pc.partialViews["setup"].active);
+});
+
+module("render()");
+
+test("Every instance of Tyro.PageController should have a render() method.", function() {
+	var pc = new Tyro.PageController();	
+	equals(typeof pc.render, "function");
+});
+
+test("When rendering a partial view, its parent partial-views should be rendered.", function() {
 	var pc = new Tyro.PageController();
 	pc.partialViews = $.extend(true, {}, fixtures.main);
 	
@@ -422,9 +458,54 @@ test("When rendering a partial view, its parent partial views should be rendered
 		render: stubFn()
 	}
 
-	pc.renderPartialView("setup");
+	pc.partialViews["setup"].view = {
+		render: stubFn()
+	}
+
+	pc.render("setup");
 
 	ok(pc.partialViews["loggedIn"].view.render.called);
-	
+	ok(pc.partialViews["setup"].view.render.called);
 
 });
+
+test("When the partial-view is already rendered/active it should not re-render the parents.", function() {
+	// setup
+	var pc = new Tyro.PageController();
+	pc.partialViews = $.extend(true, {}, fixtures.main);
+	var pvRender1 = stubFn();
+	var pvRender2 = stubFn();
+	pc.partialViews["loggedIn"].active = true;
+	pc.partialViews["loggedIn"].view = {render: pvRender1};
+	pc.partialViews["setup"].active = true;
+	pc.partialViews["setup"].view = {render: pvRender2};
+	
+	// exercise
+	pc.render("setup");
+	
+	// verify
+	ok(!pvRender1.called);
+	ok(!pvRender2.called);
+});
+
+test("When the partial-view is already rendered/active it should teardown the active-children partial-views.", function() {
+	// setup
+	var pc = new Tyro.PageController();
+	pc.partialViews = $.extend(true, {}, fixtures.main);
+	var pvTeardown = stubFn();
+	pc.partialViews["loggedIn"].active = true;
+	pc.partialViews["setup"].active = true;
+	pc.partialViews["campaigns"].active = true;
+	pc.partialViews["campaigns"].view = {teardown: pvTeardown};
+	
+// exercise
+	pc.render("setup");
+	
+	// verify
+	ok(pvTeardown.called);
+});
+
+test("Tearing down non attached parents", function() {
+
+});
+
