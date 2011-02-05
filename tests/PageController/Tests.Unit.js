@@ -595,5 +595,6 @@ test("When trying to render a partial-view into a parent-partial-view that has a
 	pc.render("campaigns");
 	
 	ok(setupHomeView.teardown.called);
+	equals(pc.partialViews["setup"].childViews.length, 0);
 
 });

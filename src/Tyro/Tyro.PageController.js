@@ -195,8 +195,6 @@ Tyro.PageController.prototype.render = function(partialViewId) {
 				if(parent) {
 						this.teardownChildView(parent.id, this.partialViews[partialViewId].view.container);
 				}
-				
-				
 				this.renderPartialViews(this.getPartialViewsInActiveParents(partialViewId));		
 		}
 }
