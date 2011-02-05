@@ -63,6 +63,7 @@ function stubFn(returnValue) {
     fn.args = arguments;
     fn.thisValue = this;
     fn.callCount++;
+		//fn.time = new Date().getTime(); // Adam - need to test this
     return returnValue;
   };
 
@@ -226,6 +227,18 @@ test("This should return the active children partial-views as an array.", functi
 	
 });
 
+module("getPartialViewTopLevel()");
+
+test("When retrieving the top level partial view, it should return the partial view.", function() {
+	var pc = new Tyro.PageController();
+	pc.partialViews = $.extend(true,{}, fixtures.main);
+	
+	var result = pc.getPartialViewTopLevel("campaigns");
+	
+	equals(pc.partialViews["loggedIn"], result);
+	
+});
+
 module("getPartialViewsNonAttachedActive()");
 
 test("When no partial-view is specificed, an empty array should be returned.", function() {
@@ -253,6 +266,23 @@ test("When there are multiple non attached active partial-views, they should be 
 	equals(result[0], pc.partialViews["dashboard"]);
 	equals(result[1], pc.partialViews["loggedIn"]);
 });
+
+test("When there are no non attached parents active, it should return an empty array.", function() {
+	var pc = new Tyro.PageController();
+	pc.partialViews = $.extend(true, {}, fixtures.main);
+	var setupHomeView = { teardown: stubFn() }
+	pc.partialViews["loggedIn"].active = true;
+	pc.partialViews["setup"].active = true;
+	pc.partialViews["setup"].childViews[setupHomeView];
+	
+	var result = pc.getPartialViewsNonAttachedActive("campaigns");
+	
+	equals(result.length, 0);
+	
+	
+	
+});
+
 
 module("getPartialViewsInActiveParents()");
 
@@ -358,6 +388,10 @@ test("When the partial-view does exist it should return the view container.", fu
 	
 });
 
+module("teardownChildView()");
+
+test("todo", function(){});
+
 module("addChildView()");
 
 test("Every instance of Tyro.PageController should have an addChildView() method.", function() {
@@ -393,6 +427,9 @@ test("When adding a view that has the same container as a view already in the pa
 
 	ok(view1.teardown.called);
 	ok(!view2.teardown.called);
+	
+	equals(pc.partialViews["setup"].childViews.length, 2);
+	
 })
 
 module("isPartialViewActive()");
@@ -505,7 +542,57 @@ test("When the partial-view is already rendered/active it should teardown the ac
 	ok(pvTeardown.called);
 });
 
-test("Tearing down non attached parents", function() {
+test("When rendering a partial-view it should teardown non attached partial views.", function() {
+	var pc = new Tyro.PageController();
+	pc.partialViews = $.extend(true, {}, fixtures.main);
+	var loginView = { teardown: stubFn() };
+	var loggedOutPartialView = { teardown: stubFn() };
+	pc.partialViews["loggedOut"].view = loggedOutPartialView;
+	pc.partialViews["loggedOut"].active = true;
+	pc.partialViews["loggedOut"].childViews = [loginView];
+	
+	// exercise
+	pc.render("setup");
+	
+	// verify
+	ok(loginView.teardown.called);
+	ok(loggedOutPartialView.teardown.called);
 
 });
 
+test("When rendering a partial-view it should teardown non attached partial views.", function() {
+	var pc = new Tyro.PageController();
+	pc.partialViews = $.extend(true, {}, fixtures.main);
+	var dashboardHomeView = { teardown: stubFn() };
+	var loggedInPartialView = { teardown: stubFn() };
+	var dashboardPartialView = { teardown: stubFn() };
+	pc.partialViews["loggedIn"].view = loggedInPartialView;
+	pc.partialViews["loggedIn"].active = true;
+	pc.partialViews["dashboard"].view = dashboardPartialView;
+	pc.partialViews["dashboard"].active = true;
+	pc.partialViews["dashboard"].childViews = [dashboardHomeView];
+	
+	// exercise
+	pc.render("loggedOut");
+	
+	// verify
+	ok(dashboardHomeView.teardown.called);
+	ok(dashboardPartialView.teardown.called);
+	ok(loggedInPartialView.teardown.called);
+
+});
+
+test("When trying to render a partial-view into a parent-partial-view that has a child-view in the same container, it should teardown it's child-view first", function() {
+	var pc = new Tyro.PageController();
+	pc.partialViews = $.extend(true, {}, fixtures.main);
+	var setupHomeView = { teardown: stubFn() }
+	pc.partialViews["loggedIn"].active = true;
+	pc.partialViews["setup"].active = true;
+	pc.partialViews["setup"].childViews[setupHomeView];
+	
+	// exercise
+	pc.render("campaigns");
+	
+	ok(setupHomeView.teardown.called);
+
+});
