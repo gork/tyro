@@ -1,13 +1,18 @@
-/*
-	  controller.prototype.action = function() {		
-				this.app.pageController.render("dashboard");
-				this.app.pageController.addChildView(this.view);
-				this.view.showLoader();
-				this.view.hideLoader();
-				this.view.render();		
-		}
-*/
-
+/**
+ * A special controller to handle the rendering and tearing down of partial-views
+ * @class
+ * @constructor
+ * @memberOf Tyro
+ * @example
+ * var pc = new Tyro.PageController();
+ * function controllerAction() {
+ * 		pc.render("dashboard");
+ * 		pc.addChildView("dashboard", dashboardHomeView);
+ * 		dashboardHomeView.showLoader();
+ * 		dashboardHomeView.hideLoader();
+ * 		dashboardHomeView.render();
+ * }
+ */
 var Tyro = Tyro || {};
 Tyro.PageController = function() {
 	this.partialViews = {};	
@@ -44,8 +49,6 @@ Tyro.PageController.prototype.getPartialViewTopLevel = function(partialViewId) {
 		}
 		return topLevel;
 }
-
-
 
 Tyro.PageController.prototype.getPartialViewsChildrenActive = function(partialViewId) {
 	var viewId = null;
@@ -165,24 +168,6 @@ Tyro.PageController.prototype.renderPartialViews = function(partialViews) {
 				partialViews[i].view.render();
 				partialViews[i].active = true;
 		}
-}
-
-Tyro.PageController.prototype.render = function(options) {
-  if(this.partialViews[options.partialViewId].active) {
-    this.teardownChildPartialViews(options.partialViewId);
-  }
-  else {
-    var partialViewContainer = this.getPartialViewDomContainer(options.partialViewId);
-    var partialViewParentsChildren = this.getPartialViewParentsChildren(options.partialViewId);
-    for(var i = 0; i < partialViewParentsChildren.length; i++) {
-      if(partialViewParentsChildren[i].container === partialViewContainer) {
-        partialViewParentsChildren[i].teardown();
-        partialViewParentsChildren.splice(i, 1);
-        break;
-      }
-    }    
-    this.renderParentPartialViews(options.partialViewId);
-  }
 }
 
 Tyro.PageController.prototype.render = function(partialViewId) {
