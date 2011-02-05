@@ -382,3 +382,5 @@ test("Adding a view to a partial adds it to the childViews array", function() {
 	equals(pc.partialViews["setup"].childViews[0], view);
 	
 });
+
+module("isPartialViewActive()")
