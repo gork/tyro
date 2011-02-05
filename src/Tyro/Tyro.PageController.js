@@ -19,9 +19,11 @@ Tyro.PageController.prototype.getPartialViewsNonAttachedActive = function(partia
 		for(var pv in this.partialViews) {
 				if(this.partialViews[pv].partialViewId === null) {
 						if(this.partialViews[pv].active) {
-								topLevelPartialViewActiveNonAttached = pv;
-								returnVal.push(this.partialViews[pv]);
-								break;
+								if(this.partialViews[pv] !== this.getPartialViewTopLevel(partialViewId)) {
+										topLevelPartialViewActiveNonAttached = pv;
+										returnVal.push(this.partialViews[pv]);
+										break;
+								}
 						}
 				}
 		}
@@ -29,10 +31,6 @@ Tyro.PageController.prototype.getPartialViewsNonAttachedActive = function(partia
 				returnVal = returnVal.concat(this.getPartialViewsChildrenActive(topLevelPartialViewActiveNonAttached))
 		}
 		return returnVal.reverse();
-}
-
-Tyro.PageController.prototype.getPartialViewsNonAttachedActive = function(partialViewId) {
-		
 }
 
 Tyro.PageController.prototype.getPartialViewTopLevel = function(partialViewId) {
@@ -193,8 +191,12 @@ Tyro.PageController.prototype.render = function(partialViewId) {
 		}
 		else {
 				this.teardownPartialViews(this.getPartialViewsNonAttachedActive(partialViewId));
-				//var parent = this.partialViews[this.partialViews[partialViewId].partialViewId];
-				//this.teardownChildView(, this.partialViews[partialViewId].view.container);
+				var parent = this.partialViews[this.partialViews[partialViewId].partialViewId];
+				if(parent) {
+						this.teardownChildView(parent.id, this.partialViews[partialViewId].view.container);
+				}
+				
+				
 				this.renderPartialViews(this.getPartialViewsInActiveParents(partialViewId));		
 		}
 }

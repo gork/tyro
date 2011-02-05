@@ -585,10 +585,11 @@ test("When rendering a partial-view it should teardown non attached partial view
 test("When trying to render a partial-view into a parent-partial-view that has a child-view in the same container, it should teardown it's child-view first", function() {
 	var pc = new Tyro.PageController();
 	pc.partialViews = $.extend(true, {}, fixtures.main);
-	var setupHomeView = { teardown: stubFn() }
+	var setupHomeView = { teardown: stubFn(), container: "adam" }
 	pc.partialViews["loggedIn"].active = true;
 	pc.partialViews["setup"].active = true;
-	pc.partialViews["setup"].childViews[setupHomeView];
+	pc.partialViews["setup"].childViews = [setupHomeView];
+	pc.partialViews["campaigns"].view.container = "adam";
 	
 	// exercise
 	pc.render("campaigns");
