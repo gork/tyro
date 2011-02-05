@@ -381,4 +381,26 @@ test("When adding a view to a partial-view  it should be added to it's childView
 	
 });
 
-module("isPartialViewActive()")
+module("isPartialViewActive()");
+
+test("Every instance of Tyro.PageController should have an isPartialViewActive() method.", function() {
+	var pc = new Tyro.PageController();	
+	equals(typeof pc.isPartialViewActive, "function");
+});
+
+test("When a view is active, this should return true", function() {
+	var pc = new Tyro.PageController();
+	pc.partialViews = $.extend(true, {}, fixtures.main);
+	pc.partialViews["setup"].active = true;
+	var result = pc.isPartialViewActive("setup");
+	
+	ok(result);
+});
+
+test("When a view is active, this should return true", function() {
+	var pc = new Tyro.PageController();
+	pc.partialViews = $.extend(true, {}, fixtures.main);
+	var result = pc.isPartialViewActive("setup");
+	
+	ok(!result);
+});

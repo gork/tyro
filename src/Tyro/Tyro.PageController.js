@@ -206,3 +206,7 @@ Tyro.PageController.prototype.addPartialView = function(pv) {
 		
 		this.partialViews[pv.id] = pv;
 }
+
+Tyro.PageController.prototype.isPartialViewActive = function(partialViewId) {
+		return this.partialViews[partialViewId].active;
+}
