@@ -624,7 +624,30 @@ test("When rendering a partial-view that is on the same level as one that is cur
 	
 	ok(setupTeardown.called);
 	
-	
-	
-	
 });
+
+test("", function() {
+	var pc = new Tyro.PageController();
+	pc.partialViews = $.extend(true, {}, fixtures.main);
+	pc.partialViews["loggedIn"].active = true;
+	pc.partialViews["dashboard"].active = true;
+	
+	var teardownDashboard = stubFn();
+	
+	pc.partialViews["dashboard"].view = {
+		teardown: teardownDashboard
+	}
+	
+	//var iap = pc.getPartialViewsInActiveParents("campaigns");
+	
+	
+	//var pca = pc.getPartialViewsChildrenActive(iap[0].partialViewId)
+	
+	pc.render("campaigns");
+	
+	ok(teardownDashboard.called)
+	
+	// dashboard ---> campaigns --- doesn't teardown dashbaord stuff
+
+	
+})
