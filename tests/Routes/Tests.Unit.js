@@ -292,6 +292,3 @@ test("Adding a filter adds the callbacks to the filters object", function() {
   ok(t.filters["/nat/*"], "The filter has been added to the filters collection.");
   ok(func2.called, "The function was called for the second filter");  
 });
-
-
-

@@ -404,3 +404,27 @@ test("When a view is active, this should return true", function() {
 	
 	ok(!result);
 });
+
+module("renderPartialViews()");
+
+module("renderPartialView()");
+
+test("Every instance of Tyro.PageController should have a renderPartialView() method.", function() {
+	var pc = new Tyro.PageController();	
+	equals(typeof pc.renderPartialView, "function");
+});
+
+test("When rendering a partial view, its parent partial views should be rendered", function() {
+	var pc = new Tyro.PageController();
+	pc.partialViews = $.extend(true, {}, fixtures.main);
+	
+	pc.partialViews["loggedIn"].view = {
+		render: stubFn()
+	}
+
+	pc.renderPartialView("setup");
+
+	ok(pc.partialViews["loggedIn"].view.render.called);
+	
+
+});
