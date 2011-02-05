@@ -57,8 +57,6 @@ fixtures.main = {
 	}
 }
 
-
-
 function stubFn(returnValue) {
   var fn = function () {
     fn.called = true;
@@ -80,33 +78,33 @@ test("Tyro.PageController is a constructor function", function() {
   equals(typeof Tyro.PageController, "function", "Tyro.PageController is of type function.");
 });
 
-test("Each instance has a partialViews object.", function() {
+test("Every instance of Tyro.PageController should have a partialViews object property.", function() {
   var pc = new Tyro.PageController();
 	equals(typeof pc.partialViews, "object");
 });
 
-module("Tyro.addPartialView()");
+module("addPartialView()");
 
-test("The instance has a addPartialView() method", function() {
+test("Every instance of Tyro.PageController should have an addPartialView() method.", function() {
 	var pc = new Tyro.PageController();
 	equals(typeof pc.addPartialView, "function");
 });
 
-test("Adding a partial view with no arguments throws an error", function() {
+test("When adding a partial-view with no arguments an error is thrown.", function() {
 	var pc = new Tyro.PageController();
 	raises(function() {
 		pc.addPartialView();
 	}, "raised");
 });
 
-test("Adding a partial view without the an id property throws an error", function() {
+test("When adding a partial-view without an 'id' property an error is thrown.", function() {
 	var pc = new Tyro.PageController();
 	raises(function() {
 		pc.addPartialView({});
 	}, "raised");
 });
 
-test("Adding a partial view without an active property throws an error", function() {
+test("When adding a partial-view without an 'active' property an error is thrown.", function() {
 	var pc = new Tyro.PageController();
 	raises(function() {
 		pc.addPartialView({
@@ -115,7 +113,7 @@ test("Adding a partial view without an active property throws an error", functio
 	}, "raised");
 });
 
-test("Adding a partial view without a partialViewId property throws an error", function() {
+test("When adding a partial-view without a 'partialViewId' property an error is thrown.", function() {
 	var pc = new Tyro.PageController();
 	raises(function() {
 		pc.addPartialView({
@@ -124,7 +122,7 @@ test("Adding a partial view without a partialViewId property throws an error", f
 		});
 	}, "raised");
 });
-test("Adding a partial view without a childViews array property throws an error", function() {
+test("When adding a partial-view without a 'childViews' property an error is thrown.", function() {
 	var pc = new Tyro.PageController();
 	raises(function() {
 		pc.addPartialView({
@@ -135,7 +133,7 @@ test("Adding a partial view without a childViews array property throws an error"
 	}, "raised");
 });
 
-test("Adding a partial view without a view property throws an error", function() {
+test("When adding a partial-view without a 'view' property an error is thrown.", function() {
 	var pc = new Tyro.PageController();
 	raises(function() {
 		pc.addPartialView({
@@ -147,7 +145,7 @@ test("Adding a partial view without a view property throws an error", function()
 	}, "raised");
 });
 
-test("Adding a partial view with a view property but doesnt have correct members throws an error", function() {
+test("When adding a partial-view with a malformed 'view' property an error is thrown.", function() {
 	var pc = new Tyro.PageController();
 	raises(function() {
 		pc.addPartialView({
@@ -181,7 +179,7 @@ test("Adding a partial view with a view property but doesnt have correct members
 	
 });
 
-test("Adding a partialView should add it to the partialViews collection on the instance", function() {
+test("When adding a valid partialView it should be added to the partialViews collection.", function() {
 	var pc = new Tyro.PageController();
 	pc.addPartialView({
 		id: "setup",
@@ -201,7 +199,7 @@ test("Adding a partialView should add it to the partialViews collection on the i
 
 module("getPartialViewsChildrenActive()");
 
-test("Invoking this method returns the active partial views for this particular partialViewId", function() {
+test("This should return the active children partial-views as an array.", function() {
 	var pc = new Tyro.PageController();
 	pc.partialViews = $.extend(true,{}, fixtures.main);
 	pc.partialViews["loggedIn"].active = true;
@@ -213,7 +211,7 @@ test("Invoking this method returns the active partial views for this particular 
 	equals(result[1], pc.partialViews["setup"]);
 });
 
-test("Invoking this method returns the active partial views for this particular partialViewId", function() {
+test("This should return the active children partial-views as an array.", function() {
 	var pc = new Tyro.PageController();
 	pc.partialViews = $.extend(true, {}, fixtures.main);
 	pc.partialViews["loggedIn"].active = true;
@@ -230,14 +228,14 @@ test("Invoking this method returns the active partial views for this particular 
 
 module("getPartialViewsNonAttachedActive()");
 
-test("Getting non attached partial views when there are none should return an empty array", function() {
+test("When no partial-view is specificed, an empty array should be returned.", function() {
 	var pc = new Tyro.PageController();	
 	pc.partialViews = $.extend(true,{}, fixtures.main);
 	var result = pc.getPartialViewsNonAttachedActive();
 	ok($.isArray(result));
 });
 
-test("1) Getting non attached partial views should return the non attached active partial views", function() {
+test("When one non attached partial-view is active, that partial-view should be returned in an array.", function() {
 	var pc = new Tyro.PageController();	
 	pc.partialViews = $.extend(true,{}, fixtures.main);
 	pc.partialViews["loggedOut"].active = true;
@@ -245,7 +243,7 @@ test("1) Getting non attached partial views should return the non attached activ
 	equals(result[0], pc.partialViews["loggedOut"]);
 });
 
-test("2) Getting non attached partial views should return the non attached active partial views", function() {
+test("When there are multiple non attached active partial-views, they should be returned in an array.", function() {
 	var pc = new Tyro.PageController();	
 	pc.partialViews = $.extend(true,{}, fixtures.main);
 	pc.partialViews["loggedIn"].active = true;
@@ -258,12 +256,12 @@ test("2) Getting non attached partial views should return the non attached activ
 
 module("getPartialViewsInActiveParents()");
 
-test("getPartialViewsInActiveParents() should be a method on a pc instance", function() {
+test("Every instance of Tyro.PageController should have a getPartialViewsInActiveParents() method.", function() {
 	var pc = new Tyro.PageController();	
 	equals(typeof pc.getPartialViewsInActiveParents, "function");
 });
 
-test("Getting inactive parent partial views should return the correct items.", function() {
+test("When there are partial-views that are inactive and parents it should return them in an array.", function() {
 	var pc = new Tyro.PageController();	
 	
 	pc.partialViews = $.extend(true,{}, fixtures.main);
@@ -290,12 +288,12 @@ test("Getting inactive parent partial views should return the correct items.", f
 
 module("teardownPartialView()");
 
-test("teardownPartialView() should be a method on a pc instance", function() {
+test("Every instance of Tyro.PageController should have a teardownPartialView() method", function() {
 	var pc = new Tyro.PageController();	
 	equals(typeof pc.teardownPartialView, "function");
 });
 
-test("Tearing down a partial view should call teardown on all childViews as well as the partials main view", function() {
+test("When tearing down a partial-view it should call teardown on it's childViews and then it's own view.", function() {
 	// setup
 	var pc = new Tyro.PageController();
 	pc.partialViews["setup"] = $.extend(true,{}, fixtures.main["setup"]);
@@ -316,12 +314,12 @@ test("Tearing down a partial view should call teardown on all childViews as well
 
 module("teardownPartialViews()");
 
-test("teardownPartialViews() should be a method on a pc instance", function() {
+test("Every instance of Tyro.PageController should have a teardownPartialViews() method.", function() {
 	var pc = new Tyro.PageController();	
 	equals(typeof pc.teardownPartialViews, "function");
 });
 
-test("When tearing down many partial views, it should delegate to the teardownPartialView() method", function() {
+test("When tearing down many partial-views, it should delegate to the teardownPartialView() method.", function() {
 	var pc = new Tyro.PageController();
 	pc.teardownPartialView = stubFn();
 	pc.partialViews = $.extend(true, {}, fixtures.main);
@@ -337,12 +335,12 @@ test("When tearing down many partial views, it should delegate to the teardownPa
 
 module("getPartialViewDomContainer()");
 
-test("getPartialViewDomContainer() should be a method on a pc instance", function() {
+test("Every instance of Tyro.PageController should have a getPartialViewDomContainer() method.", function() {
 	var pc = new Tyro.PageController();	
 	equals(typeof pc.getPartialViewDomContainer, "function");
 });
 
-test("When partialView doesn't exist it should return null", function() {
+test("When the partial-view doesn't exist it should return null.", function() {
 	var pc = new Tyro.PageController();
 	
 	var result = pc.getPartialViewDomContainer();
@@ -350,7 +348,7 @@ test("When partialView doesn't exist it should return null", function() {
 	equals(result, null);
 });
 
-test("When partialView exists return the view container", function() {
+test("When the partial-view does exist it should return the view container.", function() {
 	var pc = new Tyro.PageController();
 	pc.partialViews = $.extend(true, {}, fixtures.main);
 	
@@ -362,12 +360,12 @@ test("When partialView exists return the view container", function() {
 
 module("addChildView()");
 
-test("addChildView() should be a method on a pc instance", function() {
+test("Every instance of Tyro.PageController should have an addChildView() method.", function() {
 	var pc = new Tyro.PageController();	
 	equals(typeof pc.addChildView, "function");
 });
 
-test("Adding a view to a partial adds it to the childViews array", function() {
+test("When adding a view to a partial-view  it should be added to it's childViews array.", function() {
 	var pc = new Tyro.PageController();
 	pc.partialViews = $.extend(true, {}, fixtures.main);
 	
