@@ -616,9 +616,10 @@ test("When rendering a partial-view that is on the same level as one that is cur
 	
 	var setupTeardown = stubFn();
 	pc.partialViews["setup"].view = {
+		container: "#main",
 		teardown: setupTeardown
 	}
-	
+
 	pc.render("dashboard");
 	
 	ok(setupTeardown.called);
