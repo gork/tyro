@@ -391,3 +391,10 @@ Tyro.PageController.prototype.getPartialViewDomContainer = function(partialViewI
 		}
 		return returnVal;
 }
+
+Tyro.PageController.prototype.addChildView = function(partialViewId, view) {
+		var pv = this.partialViews[partialViewId];
+		if(pv) {
+				pv.childViews.push(view);
+		}
+}

@@ -352,6 +352,33 @@ test("When partialView doesn't exist it should return null", function() {
 
 test("When partialView exists return the view container", function() {
 	var pc = new Tyro.PageController();
+	pc.partialViews = $.extend(true, {}, fixtures.main);
 	
-	// todo
+	var result = pc.getPartialViewDomContainer("setup");
+	
+	equals(result, "some container");
+	
+});
+
+module("addChildView()");
+
+test("addChildView() should be a method on a pc instance", function() {
+	var pc = new Tyro.PageController();	
+	equals(typeof pc.addChildView, "function");
+});
+
+test("Adding a view to a partial adds it to the childViews array", function() {
+	var pc = new Tyro.PageController();
+	pc.partialViews = $.extend(true, {}, fixtures.main);
+	
+	var view = {
+		render: stubFn(),
+		teardown: stubFn(),
+		container: "woop"
+	}
+	pc.addChildView("setup", view);
+	
+	equals(pc.partialViews["setup"].childViews.length, 1);
+	equals(pc.partialViews["setup"].childViews[0], view);
+	
 });
