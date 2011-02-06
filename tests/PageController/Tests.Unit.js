@@ -63,7 +63,6 @@ function stubFn(returnValue) {
     fn.args = arguments;
     fn.thisValue = this;
     fn.callCount++;
-		//fn.time = new Date().getTime(); // Adam - need to test this
     return returnValue;
   };
 
@@ -626,7 +625,7 @@ test("When rendering a partial-view that is on the same level as one that is cur
 	
 });
 
-test("", function() {
+test("etc", function() {
 	var pc = new Tyro.PageController();
 	pc.partialViews = $.extend(true, {}, fixtures.main);
 	pc.partialViews["loggedIn"].active = true;
