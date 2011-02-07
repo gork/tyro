@@ -706,15 +706,17 @@ test("etc", function() {
 	pc.partialViews["dashboard"].active = true;	
 	var order = [];
 	var teardownDashboard = stubFn(null, order);
+	var renderDashboard = stubFn(null, order);
 	var renderSetup = stubFn(null, order);
 	var renderCampaigns = stubFn(null, order);
 	pc.partialViews["setup"].view = {	render: renderSetup	};
 	pc.partialViews["campaigns"].view = {	render: renderCampaigns	};
-	pc.partialViews["dashboard"].view = {	teardown: teardownDashboard	};
+	pc.partialViews["dashboard"].view = {	teardown: teardownDashboard, render: renderDashboard };
 	pc.render("campaigns");
 	
 	equals(order[0], teardownDashboard);
 	equals(order[1], renderSetup);
 	equals(order[2], renderCampaigns)
+	ok(!renderDashboard.called);
 	ok(teardownDashboard.called);	
 });
