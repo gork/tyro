@@ -1,3 +1,33 @@
+/*
+loggedIn -> loggedOut
+
+- teardown non attached active (loggedIn)
+- render in-active parents (loggedOut)
+
+loggedIn, dashboard -> loggedOut
+
+- teardown non attached active (loggedIn, dashboard)
+- render in-active parents (loggedOut)
+
+loggedIn, setup -> loggedIn, dashboard
+
+- teardown non attached active (NONE)
+- teardown everything below top level active partial-view (below loggedIn - setup)
+- render in-active parents (dashboard)
+
+loggedIn, setup, campaigns -> loggedIn, setup
+
+- teardown non attached active (NONE)
+- teardown everything below top level active partial-view (below setup - campaigns)
+- render in-active parents (NONE)
+
+loggedIn, dashboard -> loggedIn, setup, campaigns
+
+- teardown non attached active (NONE)
+- teardown everything below top level active partial-view (below loggedIn - dashboard)
+- render in-active parents (setup, campaigns)
+*/
+
 var fixtures = {};
 fixtures.main = {	
 	"loggedOut": {
@@ -479,7 +509,7 @@ test("When invoking this method, it should render each of the partial-views view
 	ok(pc.partialViews["setup"].active);
 });
 
-module("render()");
+module("render() - general");
 
 test("Every instance of Tyro.PageController should have a render() method.", function() {
 	var pc = new Tyro.PageController();	
@@ -494,27 +524,13 @@ test("When rendering a partial-view with no argument, an error is thrown", funct
 
 });
 
+module("render() - partial-view is already active");
 
-test("When rendering a partial-view, its parent partial-views should be rendered.", function() {
-	var pc = new Tyro.PageController();
-	pc.partialViews = $.extend(true, {}, fixtures.main);
-	
-	pc.partialViews["loggedIn"].view = {
-		render: stubFn()
-	}
-
-	pc.partialViews["setup"].view = {
-		render: stubFn()
-	}
-
-	pc.render("setup");
-
-	ok(pc.partialViews["loggedIn"].view.render.called);
-	ok(pc.partialViews["setup"].view.render.called);
-
+test("It should not attempt to teardown non attached active partial-views", function() {
+	ok(false);
 });
 
-test("When the partial-view is already rendered/active it should not re-render the parents.", function() {
+test("It should not attempt to re-render the parents.", function() {
 	// setup
 	var pc = new Tyro.PageController();
 	pc.partialViews = $.extend(true, {}, fixtures.main);
@@ -533,7 +549,7 @@ test("When the partial-view is already rendered/active it should not re-render t
 	ok(!pvRender2.called);
 });
 
-test("When the partial-view is already rendered/active it should teardown the active-children partial-views.", function() {
+test("It should teardown the active-children partial-views.", function() {
 	// setup
 	var pc = new Tyro.PageController();
 	pc.partialViews = $.extend(true, {}, fixtures.main);
@@ -548,6 +564,27 @@ test("When the partial-view is already rendered/active it should teardown the ac
 	
 	// verify
 	ok(pvTeardown.called);
+});
+
+module("render() - partial-view is in-active");
+
+test("When rendering a partial-view, its parent partial-views should be rendered.", function() {
+	var pc = new Tyro.PageController();
+	pc.partialViews = $.extend(true, {}, fixtures.main);
+	
+	pc.partialViews["loggedIn"].view = {
+		render: stubFn()
+	}
+
+	pc.partialViews["setup"].view = {
+		render: stubFn()
+	}
+
+	pc.render("setup");
+
+	ok(pc.partialViews["loggedIn"].view.render.called);
+	ok(pc.partialViews["setup"].view.render.called);
+
 });
 
 test("When rendering a partial-view it should teardown non attached partial views.", function() {
