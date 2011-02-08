@@ -299,7 +299,7 @@ test("When there are multiple non attached active partial-views, they should be 
 	equals(result[1], pc.partialViews["loggedIn"]);
 });
 
-test("When there are no non attached parents active, it should return an empty array.", function() {
+test("When there are no non attached active partial-views, it should return an empty array.", function() {
 	var pc = new Tyro.PageController();
 	pc.partialViews = $.extend(true, {}, fixtures.main);
 	var setupHomeView = { teardown: stubFn() }
@@ -310,11 +310,22 @@ test("When there are no non attached parents active, it should return an empty a
 	var result = pc.getPartialViewsNonAttachedActive("campaigns");
 	
 	equals(result.length, 0);
-	
-	
-	
+
 });
 
+test("When getting non attached active partial-views it should return them in child-to-parent order.", function() {
+  var pc = new Tyro.PageController();
+  pc.partialViews = $.extend(true, {}, fixtures.main);
+  pc.partialViews["loggedIn"].active = true;
+  pc.partialViews["setup"].active = true;
+  pc.partialViews["campaigns"].active = true;
+  
+  var result = pc.getPartialViewsNonAttachedActive("loggedOut");
+  
+  equals(result[0], pc.partialViews["campaigns"]);
+  equals(result[1], pc.partialViews["setup"]);
+  equals(result[2], pc.partialViews["loggedIn"]);
+});
 
 module("getPartialViewsInActiveParents()");
 
@@ -720,3 +731,28 @@ test("etc", function() {
 	ok(!renderDashboard.called);
 	ok(teardownDashboard.called);	
 });
+
+module("render() - moving from 3 levels deep to a non-attached ")
+
+test("When rendering a non-attached partial-view from 3 levels deep, the correct partial-views should be torn down in order", function() {
+  var pc = new Tyro.PageController();
+  pc.partialViews = $.extend(true, {}, fixtures.main);
+  pc.partialViews["loggedIn"].active = true;
+  pc.partialViews["setup"].active = true;
+  pc.partialViews["campaigns"].active = true;
+  var order = [];
+  var teardownLoggedIn = stubFn(null, order);
+  var teardownSetup = stubFn(null, order);
+  var teardownCampaigns = stubFn(null, order);
+  pc.partialViews["loggedIn"].view = { teardown: teardownLoggedIn };
+  pc.partialViews["setup"].view = { teardown: teardownSetup };
+  pc.partialViews["campaigns"].view = { teardown: teardownCampaigns };
+  
+  pc.render("loggedOut");
+  
+  equals(order[0], teardownCampaigns);
+  equals(order[1], teardownSetup);
+  equals(order[2], teardownLoggedIn);
+  
+});
+

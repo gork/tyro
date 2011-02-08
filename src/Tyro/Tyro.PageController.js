@@ -33,7 +33,7 @@ Tyro.PageController.prototype.getPartialViewsNonAttachedActive = function(partia
 				}
 		}
 		if(topLevelPartialViewActiveNonAttached) {				
-				returnVal = returnVal.concat(this.getPartialViewsChildrenActive(topLevelPartialViewActiveNonAttached))
+				returnVal = returnVal.concat(this.getPartialViewsChildrenActive(topLevelPartialViewActiveNonAttached).reverse());
 		}
 		return returnVal.reverse();
 }
