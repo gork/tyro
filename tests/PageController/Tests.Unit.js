@@ -442,12 +442,25 @@ test("Every instance of Tyro.PageController should have an addChildView() method
 	equals(typeof pc.addChildView, "function");
 });
 
-test("When adding a view without a container it should throw an error.", function() {
-  ok(false);
+test("When adding a child view without specifying a view to add, it should throw an error.", function() {
+  var pc = new Tyro.PageController();
+  raises(function() {
+		pc.addChildView("setup");
+	}, "raised");
 });
 
-test("When adding a view without a teardown method it should thrown an error.", function() {
-  ok(false);
+test("When adding a view without a container it should throw an error.", function() {
+  var pc = new Tyro.PageController();
+  raises(function() {
+		pc.addChildView("setup", {});
+	}, "raised");
+});
+
+test("When adding a view without a teardown method it should throw an error.", function() {
+  var pc = new Tyro.PageController();
+  raises(function() {
+		pc.addChildView("setup", {container: "container"});
+	}, "raised");
 });
 
 test("When adding a view to a partial-view it should be added to it's childViews array.", function() {

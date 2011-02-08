@@ -179,6 +179,15 @@ Tyro.PageController.prototype.getPartialViewDomContainer = function(partialViewI
  * @returns {Array} An array of partial-views
  */
 Tyro.PageController.prototype.addChildView = function(partialViewId, view) {
+    if(!view) {
+      throw new TypeError("Tyro: PageController: addChildView: Must provide a view to add.");
+    }
+    if(typeof view.container !== "string") {
+      throw new TypeError("Tyro: PageController: addChildView: Must provide a view container.");
+    }
+    if(typeof view.teardown !== "function") {
+      throw new TypeError("Tyro: PageController: addChildView: Must provide a view container.");
+    }
 		var pv = this.partialViews[partialViewId];
 		var existingView = null;
 		if(pv) {
