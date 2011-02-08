@@ -232,7 +232,7 @@ Tyro.PageController.prototype.teardownChildView = function(partialViewId, contai
  * @returns {Array} An array of partial-views
  */
 Tyro.PageController.prototype.addPartialView = function(pv) {
-		if(!$.isPlainObject(pv)) {
+		if(!$.type(pv) === "object") {
 				throw new TypeError("Tyro: PageController: addPartialView: provide a partial view");
 		}
 		if(typeof pv.id !== "string") {
@@ -241,13 +241,13 @@ Tyro.PageController.prototype.addPartialView = function(pv) {
 		if(typeof pv.active !== "boolean") {
 				throw new TypeError("Tyro: PageController: addPartialView: Must provide an active property");
 		}
-		if(typeof pv.partialViewId !== "string") {
+		if(typeof pv.partialViewId !== "string" && pv.partialViewId !== null) {
 				throw new TypeError("Tyro: PageController: addPartialView: Must provide an partialViewId property");
 		}
 		if(!$.isArray(pv.childViews)) {
 				throw new TypeError("Tyro: PageController: addPartialView: Must provide a childViews array property");
 		}
-		if(!$.isPlainObject(pv.view)) {
+		if(!$.type(pv) === "object") {
 				throw new TypeError("Tyro: PageController: addPartialView: Must provide a view object property");
 		}
 		if(typeof pv.view.render !== "function") {

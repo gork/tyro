@@ -212,6 +212,29 @@ test("When adding a partial-view with a malformed 'view' property an error is th
 	
 });
 
+test("When adding a partialView with a parent partialViewId of null, it should be accepted.", function() {
+  var pc = new Tyro.PageController();
+  
+  var newPv = {
+		id: "setup",
+		active: false,
+		partialViewId: "loggedIn",
+		childViews: [],
+		partialViewId: null,
+		view: {
+			render: function() {},
+			container: "#main",
+			teardown: function() {}
+		}
+	};
+  
+  pc.addPartialView(newPv);
+	
+	equals(pc.partialViews["setup"], newPv);
+	
+});
+
+
 test("When adding a valid partialView it should be added to the partialViews collection.", function() {
 	var pc = new Tyro.PageController();
 	pc.addPartialView({
