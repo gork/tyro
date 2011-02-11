@@ -192,6 +192,10 @@ Tyro.Routes.prototype.handleFilterFound = function(url, filter, matches) {
  * @param {Function} callback 
  */
 Tyro.Routes.prototype.addRoute = function(route, callback, options) {
+
+
+  if(route.substr(-1) == '/') route = route.substr(0, route.length-1);
+  
   options = $.extend({
     beforeFilters: [],
     afterFilters: []
@@ -260,6 +264,7 @@ Tyro.Routes.prototype.routeToRegExp = function(route) {
  * @returns {Object} The object keyed by route param names
  */
 Tyro.Routes.prototype.getParamsFromRoute = function(route, url) {
+  
   var params = {};
   var paramsMatcher = /:([\w\d]+)/g;
   paramsMatcher.lastIndex = 0; // ie bug - check out sammy
@@ -276,7 +281,8 @@ Tyro.Routes.prototype.getParamsFromRoute = function(route, url) {
   else {
     qs = {};
   }
-  
+
+  route += "/?";
   url = url.replace(queryStringMatcher, '');
 
   var param_names = [], path_match, path = route, path_params;
@@ -285,6 +291,7 @@ Tyro.Routes.prototype.getParamsFromRoute = function(route, url) {
   }
   // replace with the path replacement
   path = new RegExp("^" + path.replace(paramsMatcher, pathReplacer) + "$");
+
 
   if ((path_params = path.exec(url)) !== null) {
     // dont want the first bit
