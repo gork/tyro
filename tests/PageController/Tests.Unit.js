@@ -212,6 +212,29 @@ test("When adding a partial-view with a malformed 'view' property an error is th
 	
 });
 
+test("When adding a partialView with a parent partialViewId of null, it should be accepted.", function() {
+  var pc = new Tyro.PageController();
+  
+  var newPv = {
+		id: "setup",
+		active: false,
+		partialViewId: "loggedIn",
+		childViews: [],
+		partialViewId: null,
+		view: {
+			render: function() {},
+			container: "#main",
+			teardown: function() {}
+		}
+	};
+  
+  pc.addPartialView(newPv);
+	
+	equals(pc.partialViews["setup"], newPv);
+	
+});
+
+
 test("When adding a valid partialView it should be added to the partialViews collection.", function() {
 	var pc = new Tyro.PageController();
 	pc.addPartialView({
@@ -299,7 +322,7 @@ test("When there are multiple non attached active partial-views, they should be 
 	equals(result[1], pc.partialViews["loggedIn"]);
 });
 
-test("When there are no non attached parents active, it should return an empty array.", function() {
+test("When there are no non attached active partial-views, it should return an empty array.", function() {
 	var pc = new Tyro.PageController();
 	pc.partialViews = $.extend(true, {}, fixtures.main);
 	var setupHomeView = { teardown: stubFn() }
@@ -310,11 +333,22 @@ test("When there are no non attached parents active, it should return an empty a
 	var result = pc.getPartialViewsNonAttachedActive("campaigns");
 	
 	equals(result.length, 0);
-	
-	
-	
+
 });
 
+test("When getting non attached active partial-views it should return them in child-to-parent order.", function() {
+  var pc = new Tyro.PageController();
+  pc.partialViews = $.extend(true, {}, fixtures.main);
+  pc.partialViews["loggedIn"].active = true;
+  pc.partialViews["setup"].active = true;
+  pc.partialViews["campaigns"].active = true;
+  
+  var result = pc.getPartialViewsNonAttachedActive("loggedOut");
+  
+  equals(result[0], pc.partialViews["campaigns"]);
+  equals(result[1], pc.partialViews["setup"]);
+  equals(result[2], pc.partialViews["loggedIn"]);
+});
 
 module("getPartialViewsInActiveParents()");
 
@@ -431,7 +465,28 @@ test("Every instance of Tyro.PageController should have an addChildView() method
 	equals(typeof pc.addChildView, "function");
 });
 
-test("When adding a view to a partial-view  it should be added to it's childViews array.", function() {
+test("When adding a child view without specifying a view to add, it should throw an error.", function() {
+  var pc = new Tyro.PageController();
+  raises(function() {
+		pc.addChildView("setup");
+	}, "raised");
+});
+
+test("When adding a view without a container it should throw an error.", function() {
+  var pc = new Tyro.PageController();
+  raises(function() {
+		pc.addChildView("setup", {});
+	}, "raised");
+});
+
+test("When adding a view without a teardown method it should throw an error.", function() {
+  var pc = new Tyro.PageController();
+  raises(function() {
+		pc.addChildView("setup", {container: "container"});
+	}, "raised");
+});
+
+test("When adding a view to a partial-view it should be added to it's childViews array.", function() {
 	var pc = new Tyro.PageController();
 	pc.partialViews = $.extend(true, {}, fixtures.main);
 	
@@ -720,3 +775,28 @@ test("etc", function() {
 	ok(!renderDashboard.called);
 	ok(teardownDashboard.called);	
 });
+
+module("render() - moving from 3 levels deep to a non-attached ")
+
+test("When rendering a non-attached partial-view from 3 levels deep, the correct partial-views should be torn down in order", function() {
+  var pc = new Tyro.PageController();
+  pc.partialViews = $.extend(true, {}, fixtures.main);
+  pc.partialViews["loggedIn"].active = true;
+  pc.partialViews["setup"].active = true;
+  pc.partialViews["campaigns"].active = true;
+  var order = [];
+  var teardownLoggedIn = stubFn(null, order);
+  var teardownSetup = stubFn(null, order);
+  var teardownCampaigns = stubFn(null, order);
+  pc.partialViews["loggedIn"].view = { teardown: teardownLoggedIn };
+  pc.partialViews["setup"].view = { teardown: teardownSetup };
+  pc.partialViews["campaigns"].view = { teardown: teardownCampaigns };
+  
+  pc.render("loggedOut");
+  
+  equals(order[0], teardownCampaigns);
+  equals(order[1], teardownSetup);
+  equals(order[2], teardownLoggedIn);
+  
+});
+
