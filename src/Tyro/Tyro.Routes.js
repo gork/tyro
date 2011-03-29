@@ -68,7 +68,7 @@ Tyro.Routes.prototype.setupHashChange = function() {
  * Handles the hash change event
  * @memberOf Tyro#
  */
-Tyro.Routes.prototype.handleHashChange = function() {
+Tyro.Routes.prototype.handleHashChange = Tyro.Routes.prototype.reload = function() {
   this.triggerRoute(this.getHash());
 }
 

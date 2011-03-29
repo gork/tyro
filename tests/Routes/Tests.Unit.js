@@ -147,7 +147,7 @@ test("Getting the parameters from a route (and url) includes the querystring par
 })
 
 
-module("_triggerRoute()");
+module("triggerRoute()");
 
 test("Triggering a route that does not exist should set the hash to the pageNotFoundUrl (defined in the options property)", function() {
   var t = new Tyro.Routes();
@@ -200,7 +200,7 @@ test("Triggering a route should pass params object populated with querystring pa
   equals(fn1.args[0].b, "2");  
 })
 
-module("_handleHashChange()");
+module("handleHashChange() / reload()");
 
 test("Handling the hash change should call _triggerRoute()", function() {
   var t = new Tyro.Routes();
@@ -211,7 +211,7 @@ test("Handling the hash change should call _triggerRoute()", function() {
   equals(t.triggerRoute.args[0], "hello", "The getHash() value was passed to _triggerRoute as the firsrt argument.");
 });
 
-module("_setupHashChange()", {
+module("setupHashChange()", {
   setup: function() {
     this.origHashChange = $.fn.hashchange;
     $.fn.hashchange = stubFn();
