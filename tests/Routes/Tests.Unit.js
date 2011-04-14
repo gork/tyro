@@ -129,21 +129,52 @@ test("Converting a route to a regex, should return a correctly formed regex.", f
 
 module("getParamsFromRoute()")
 
-test("Getting the parameters from a route (and url) returns an object keyed by param names.", function() {
+test("Getting the parameters from a route's path (and url) returns an object keyed by param names.", function() {
   var t = new Tyro.Routes();
   var obj = t.getParamsFromRoute("/setup/:uuid/:whatever", "/setup/123/56d");
-  equals(obj.uuid, "123");
-  equals(obj.whatever, "56d");
+  equals(typeof obj, "object");
+  equals(typeof obj.url, "object");
+  equals(obj.url.uuid, "123");
+  equals(obj.url.whatever, "56d");
 })
 
-test("Getting the parameters from a route (and url) includes the querystring parameters in the object too.", function() {
+test("Getting the parameters from a route's query string path returns an object keyed by param names.", function() {
+  var t = new Tyro.Routes();
+  var obj = t.getParamsFromRoute("/setup", "/setup/?foo=bar&foobar=true");
+  equals(typeof obj, "object");
+  equals(typeof obj.qs, "object");
+  equals(obj.qs.foo, "bar");
+  equals(obj.qs.foobar, "true");
+})
+
+test("Getting the parameters from a route's url (path and query string) returns an object keyed by param names", function() {
   var func = stubFn();
   var t = new Tyro.Routes();
   var obj = t.getParamsFromRoute("/setup/:uuid/:whatever", "/setup/123/56d/?a=1&b=2");
-  equals(obj.uuid, "123");
-  equals(obj.whatever, "56d");
-  equals(obj.a, "1");
-  equals(obj.b, "2");
+  equals(typeof obj, "object");
+  equals(typeof obj.all, "object");
+  equals(obj.all.uuid, "123");
+  equals(obj.all.whatever, "56d");
+  equals(obj.all.a, "1");
+  equals(obj.all.b, "2");
+})
+
+test("Getting the parameters from a route's path does not include query string params.", function() {
+  var t = new Tyro.Routes();
+  var obj = t.getParamsFromRoute("/setup/:uuid/:whatever", "/setup/123/56d/?foo=bar");
+  equals(typeof obj, "object");
+  equals(typeof obj.url, "object");
+  notEqual(obj.url.foo, "bar");
+  equals(typeof obj.url.foo, "undefined");
+})
+
+test("Getting the parameters from a route's query string path does not include path params.", function() {
+  var t = new Tyro.Routes();
+  var obj = t.getParamsFromRoute("/setup/:uuid/:whatever", "/setup/123/56d/?foo=bar");
+  equals(typeof obj, "object");
+  equals(typeof obj.qs, "object");
+  notEqual(obj.qs.uuid, "123");
+  equals(typeof obj.qs.uuid, "undefined");
 })
 
 
@@ -183,10 +214,12 @@ test("Triggering a route should pass params object as the first argument with ke
   t.addRoute("/admin/:uuid/something/:whatever", func2);
   t.triggerRoute("/admin/1");
   t.triggerRoute("/admin/2345abc/something/fd54")
-  equals(typeof func1.args[0], "object");  
-  equals(func1.args[0].uuid, "1");
-  equals(func2.args[0].uuid, "2345abc");
-  equals(func2.args[0].whatever, "fd54");
+  equals(typeof func1.args[0], "object"); 
+  equals(typeof func1.args[0].url, "object"); 
+  equals(func1.args[0].url.uuid, "1");
+  equals(typeof func2.args[0].url, "object"); 
+  equals(func2.args[0].url.uuid, "2345abc");
+  equals(func2.args[0].url.whatever, "fd54");
 });
 
 test("Triggering a route should pass params object populated with querystring params.", function() {
@@ -196,8 +229,9 @@ test("Triggering a route should pass params object populated with querystring pa
   t.triggerRoute("/admin/?a=1&b=2");
    
   equals(typeof fn1.args[0], "object");  
-  equals(fn1.args[0].a, "1");  
-  equals(fn1.args[0].b, "2");  
+  equals(typeof fn1.args[0].qs, "object");  
+  equals(fn1.args[0].qs.a, "1");  
+  equals(fn1.args[0].qs.b, "2");  
 })
 
 module("_handleHashChange()");
