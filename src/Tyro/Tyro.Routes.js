@@ -265,7 +265,7 @@ Tyro.Routes.prototype.routeToRegExp = function(route) {
  */
 Tyro.Routes.prototype.getParamsFromRoute = function(route, url) {
   
-  var params = {};
+  var urlParams = {};
   var paramsMatcher = /:([\w\d]+)/g;
   paramsMatcher.lastIndex = 0; // ie bug - check out sammy
   var pathReplacer = "([^\/]+)";
@@ -301,15 +301,14 @@ Tyro.Routes.prototype.getParamsFromRoute = function(route, url) {
       // if theres a matching param name
       if (param_names[i]) {
         // set the name to the match
-        params[param_names[i]] = param;
+        urlParams[param_names[i]] = param;
       } else {
         // get splat code from sammy if/as you need it
       }
     });
   }
   
-  params = $.extend(params, qs);
-  return params;
+  return { url: urlParams, qs: qs, all: $.extend({}, urlParams, qs) };
 }
 
 /**
